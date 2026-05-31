@@ -12,9 +12,23 @@ import { RepoUrlError, scanGitHubRepository } from "./services/github.js";
 import { sanitizeScanReport, toCsv, toMarkdown, toPdf } from "./services/reports.js";
 
 const app = express();
+const allowedCorsOrigins = new Set([
+  "http://localhost:5173",
+  "https://pqguard.vercel.app",
+  ...config.corsOrigin.split(",").map((origin) => origin.trim()).filter(Boolean)
+]);
+const allowAllCorsOrigins = allowedCorsOrigins.has("*");
 
 app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
-app.use(cors({ origin: config.corsOrigin === "*" ? true : config.corsOrigin }));
+app.use(cors({
+  origin(origin, callback) {
+    if (!origin || allowAllCorsOrigins || allowedCorsOrigins.has(origin)) {
+      callback(null, true);
+      return;
+    }
+    callback(null, false);
+  }
+}));
 app.use(express.json({ limit: "1mb" }));
 app.use(morgan(config.nodeEnv === "production" ? "combined" : "dev"));
 
