@@ -1,5 +1,5 @@
 import { scoreArtifact } from "./hollow.js";
-import type { AnalysisMode, ClaimEvidence, FixStep, ProofAnalysisInput, ProofAnalysisResult, ProofBand, ProofChecklistItem } from "./types.js";
+import type { AnalysisMode, ClaimEvidence, FixStep, ProofAnalysisInput, ProofAnalysisResult, ProofBand, ProofChecklistItem, ProofVerdict } from "./types.js";
 import { clamp, cosineLikeSimilarity, sentences, uniqueMeaningfulWords, words } from "./utils.js";
 
 const MODE_LABELS: Record<AnalysisMode, string> = {
@@ -190,6 +190,49 @@ function buildFixPlan(mode: AnalysisMode, missing: ProofChecklistItem[], claims:
   return steps.slice(0, 5);
 }
 
+function verdictLabel(verdict: ProofVerdict) {
+  const labels: Record<ProofVerdict, string> = {
+    strong_proof: "Strong Proof",
+    needs_review: "Needs Review",
+    high_risk: "High Risk",
+    blocker: "Blocker",
+    mostly_clear_needs_timing: "Mostly Clear, Needs Timing"
+  };
+  return labels[verdict];
+}
+
+function buildVerdict(mode: AnalysisMode, proof: number, hollowScore: number, failed: ProofChecklistItem[], claims: ClaimEvidence[]) {
+  const highSeverityGaps = failed.filter((item) => item.severity === "high").length;
+  const unsupportedClaims = claims.filter((claim) => claim.status === "unsupported" || claim.status === "too_vague").length;
+  const missingTimingOnly = mode === "communications" && failed.length > 0 && failed.every((item) => /deadline|timing/i.test(item.label));
+
+  let verdict: ProofVerdict;
+  if (proof >= 75 && hollowScore < 40 && failed.length === 0 && unsupportedClaims === 0) verdict = "strong_proof";
+  else if (missingTimingOnly && proof >= 50) verdict = "mostly_clear_needs_timing";
+  else if (proof < 25 || highSeverityGaps >= 3 || hollowScore >= 80) verdict = "blocker";
+  else if (proof < 45 || highSeverityGaps >= 2 || hollowScore >= 60) verdict = "high_risk";
+  else verdict = "needs_review";
+
+  const firstGap = failed[0]?.label;
+  const reasons: Record<ProofVerdict, string> = {
+    strong_proof: `${MODE_LABELS[mode]} has enough evidence, verification, and reviewability to be trusted.`,
+    needs_review: firstGap ? `${MODE_LABELS[mode]} is useful, but ${failed.length} proof gap${failed.length === 1 ? "" : "s"} still need attention, starting with ${firstGap}.` : `${MODE_LABELS[mode]} covers the main checklist, but evidence density is still partial.`,
+    high_risk: firstGap ? `${MODE_LABELS[mode]} has important proof gaps, including ${firstGap}, and should be reviewed before it is trusted.` : `${MODE_LABELS[mode]} has high hollow-score risk and needs closer review.`,
+    blocker: firstGap ? `${MODE_LABELS[mode]} is missing critical proof, including ${firstGap}, so it should not be accepted as-is.` : `${MODE_LABELS[mode]} is too vague or risky to accept as-is.`,
+    mostly_clear_needs_timing: "The message has a clear ask or next step, but it still needs deadline or timing clarity."
+  };
+
+  const nextActions: Record<ProofVerdict, string> = {
+    strong_proof: "Preserve the current evidence and keep the proof details visible when sharing or exporting.",
+    needs_review: failed[0] ? failed[0].detail : "Add one stronger evidence detail before sharing.",
+    high_risk: failed[0] ? `Fix this first: ${failed[0].detail}` : "Ask for concrete evidence before approval.",
+    blocker: failed[0] ? `Block or rewrite until this is resolved: ${failed[0].detail}` : "Rewrite with concrete evidence before review.",
+    mostly_clear_needs_timing: "Add a deadline or response timeline without inventing fake names or dates."
+  };
+
+  return { verdict, verdictLabel: verdictLabel(verdict), verdictReason: reasons[verdict], nextAction: nextActions[verdict] };
+}
+
 export function analyzeProof(input: ProofAnalysisInput): ProofAnalysisResult {
   const text = combinedText(input);
   const hollowScore = scoreArtifact(input);
@@ -199,12 +242,14 @@ export function analyzeProof(input: ProofAnalysisInput): ProofAnalysisResult {
   const failed = missingProof.filter((item) => !item.passed);
   const questions = buildQuestions(input.mode, failed, claims);
   const fixPlan = buildFixPlan(input.mode, failed, claims);
+  const verdict = buildVerdict(input.mode, proof, hollowScore.score, failed, claims);
 
   return {
     mode: input.mode,
     hollowScore,
     proofScore: proof,
     proofBand: proofBand(proof),
+    ...verdict,
     missingProof,
     claims,
     questions,

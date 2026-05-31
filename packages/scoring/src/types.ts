@@ -6,6 +6,8 @@ export type AnalysisMode = "code_review" | "docs" | "hiring" | "communications";
 
 export type ProofBand = "Strong" | "Partial" | "Weak" | "Missing";
 
+export type ProofVerdict = "strong_proof" | "needs_review" | "high_risk" | "blocker" | "mostly_clear_needs_timing";
+
 export interface DiffFileInput {
   filename: string;
   patch?: string;
@@ -85,6 +87,10 @@ export interface ProofAnalysisResult {
   hollowScore: HollowScoreResult;
   proofScore: number;
   proofBand: ProofBand;
+  verdict: ProofVerdict;
+  verdictLabel: string;
+  verdictReason: string;
+  nextAction: string;
   missingProof: ProofChecklistItem[];
   claims: ClaimEvidence[];
   questions: string[];

@@ -21,6 +21,7 @@ import {
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { analyzeProof, downloadReport, getCiYaml, scanRepo } from "../lib/api";
+import { maskSensitiveText } from "../lib/privacy";
 import type { AiReview, AnalysisMode, ClaimEvidence, FixStep, ProofAnalysisResult, PullRequestScore, ScanResult } from "../lib/types";
 import { Modal } from "../components/Modal";
 import { Toast } from "../components/Toast";
@@ -133,6 +134,71 @@ function claimTone(status: ClaimEvidence["status"]) {
   return "border-block/35 bg-block-soft/60 text-block-strong";
 }
 
+function verdictTone(verdict: ProofAnalysisResult["verdict"]) {
+  if (verdict === "strong_proof") return "border-proof/45 bg-proof-soft/25";
+  if (verdict === "mostly_clear_needs_timing") return "border-aurora/45 bg-aurora-soft/25";
+  if (verdict === "needs_review") return "border-review/45 bg-review-soft/25";
+  return "border-block/45 bg-block-soft/25";
+}
+
+function failedProofGaps(proof?: ProofAnalysisResult | null) {
+  return proof?.missingProof.filter((item) => !item.passed) ?? [];
+}
+
+function visibleProofGapCount(proof: ProofAnalysisResult) {
+  const aiGapCount = proof.aiReview?.status === "generated" ? proof.aiReview.weaknesses.length + proof.aiReview.issues.length : 0;
+  return Math.max(failedProofGaps(proof).length, aiGapCount);
+}
+
+function topReviewRisks(scan: ScanResult | null) {
+  if (!scan) return [];
+  return scan.pullRequests
+    .flatMap((pr) => failedProofGaps(pr.proof).slice(0, 2).map((gap) => ({ pr, gap })))
+    .sort((a, b) => (b.gap.severity === "high" ? 2 : b.gap.severity === "medium" ? 1 : 0) - (a.gap.severity === "high" ? 2 : a.gap.severity === "medium" ? 1 : 0) || b.pr.score.score - a.pr.score.score)
+    .slice(0, 3);
+}
+
+function repositoryVerdict(scan: ScanResult | null) {
+  if (!scan) {
+    return {
+      label: "No Scan Yet",
+      reason: "Scan a GitHub repository to rank pull requests by hollow score, proof gaps, and reviewer action.",
+      action: "Start with Track A by scanning owner/repo or a GitHub repository URL.",
+      tone: "border-aurora/35 bg-aurora-soft/20"
+    };
+  }
+
+  const blockerCount = scan.pullRequests.filter((pr) => pr.proof.verdict === "blocker" || pr.score.band === "Block").length;
+  const highRiskCount = scan.pullRequests.filter((pr) => pr.proof.verdict === "high_risk" || pr.score.band === "Flag").length;
+  const gaps = scan.pullRequests.reduce((sum, pr) => sum + visibleProofGapCount(pr.proof), 0);
+  const first = scan.summary.topRisk[0] ?? scan.pullRequests[0];
+
+  if (blockerCount > 0) {
+    return {
+      label: "Blocker",
+      reason: `${blockerCount} PR${blockerCount === 1 ? "" : "s"} need critical proof before approval. The highest-risk PR is #${first?.number ?? "--"}.`,
+      action: `Review PR #${first?.number ?? "--"} first and ask for test, rollback, or changed-file proof before merge.`,
+      tone: "border-block/45 bg-block-soft/25"
+    };
+  }
+
+  if (highRiskCount > 0 || gaps > 0) {
+    return {
+      label: "Needs Review",
+      reason: `${gaps} proof gap${gaps === 1 ? "" : "s"} were found across ${scan.summary.totalPrs} scanned pull requests.`,
+      action: first ? `Start with PR #${first.number}; it has the highest hollow score and needs reviewer proof first.` : "Open the ranked PR queue and ask for missing proof.",
+      tone: "border-review/45 bg-review-soft/25"
+    };
+  }
+
+  return {
+    label: "Strong Proof",
+    reason: "The scanned pull requests have enough visible evidence, verification, and reviewability for a first-pass review.",
+    action: "Export the report or continue monitoring future PRs with the CI gate.",
+    tone: "border-proof/45 bg-proof-soft/25"
+  };
+}
+
 export function MainDashboard() {
   const [mode, setMode] = useState<AnalysisMode>("code_review");
   const [text, setText] = useState("");
@@ -167,7 +233,7 @@ export function MainDashboard() {
   const latestFixPlan = proof?.fixPlan.map((step) => `${step.title}: ${step.detail}`).join("\n") ?? "";
 
   async function copyText(value: string, label = "Copied to clipboard.") {
-    await navigator.clipboard.writeText(value);
+    await navigator.clipboard.writeText(maskSensitiveText(value));
     setMessage(label);
   }
 
@@ -177,7 +243,9 @@ export function MainDashboard() {
       `Mode: ${trackFor(result.mode).label}`,
       `Hollow Score: ${result.hollowScore.score} / 100`,
       `Human Proof Score: ${result.proofScore} / 100`,
-      `Status: ${result.hollowScore.band} with ${result.proofBand} proof`,
+      `Verdict: ${result.verdictLabel}`,
+      `Reason: ${result.verdictReason}`,
+      `Next Action: ${result.nextAction}`,
       `Open: ${window.location.origin}`
     ].join("\n");
   }
@@ -306,7 +374,7 @@ export function MainDashboard() {
               </span>
               <div className="min-w-0">
                 <strong className="block text-title-md text-ink">PRGuard</strong>
-                <span className="block text-body-sm text-muted">Human Review Proof Scanner</span>
+                <span className="block text-body-sm text-muted">Human Proof Scanner</span>
               </div>
             </div>
             <div className="flex flex-col gap-2 xs:flex-row">
@@ -561,8 +629,33 @@ function CodeReviewWorkspace({
   onExport: () => void;
   onOpenPr: (pr: PullRequestScore) => void;
 }) {
+  const verdict = repositoryVerdict(scan);
+  const reviewRisks = topReviewRisks(scan);
+
   return (
     <>
+      <section className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
+        <div className={`rounded-2xl border p-4 shadow-soft backdrop-blur-xl ${verdict.tone}`}>
+          <span className="text-caption font-bold uppercase text-muted">Repository Verdict</span>
+          <h2 className="mt-2 text-title-xl text-ink">{verdict.label}</h2>
+          <p className="mt-2 text-body-sm text-muted">{verdict.reason}</p>
+          <p className="mt-3 text-body-sm font-bold text-ink">{verdict.action}</p>
+        </div>
+        <Panel title="Top Review Risks" eyebrow="What to inspect first">
+          {reviewRisks.length ? (
+            <ol className="grid gap-2">
+              {reviewRisks.map(({ pr, gap }) => (
+                <li className="rounded-lg border border-line/60 bg-elevated/70 p-3 text-body-sm text-muted" key={`${pr.id}-${gap.label}`}>
+                  <strong className="text-ink">PR #{pr.number}:</strong> {gap.label}. {gap.detail}
+                </li>
+              ))}
+            </ol>
+          ) : (
+            <EmptyState text="Scan results with proof gaps will show the top three reviewer risks here." />
+          )}
+        </Panel>
+      </section>
+
       <section className="code-scan-layout">
         <Panel title="Repository Scan" eyebrow="Track A live data">
           <div className="flex flex-col gap-4">
@@ -632,7 +725,9 @@ function CodeReviewWorkspace({
                   <span className="min-w-0">
                     <small className="text-caption font-bold uppercase text-muted">#{pr.number} by {pr.author}</small>
                     <strong className="mt-1 block text-body-md text-ink">{pr.title}</strong>
-                    <span className="mt-1 line-clamp-2 block text-body-sm text-muted">{pr.proof.summary}</span>
+                    <span className="mt-1 line-clamp-2 block text-body-sm text-muted">
+                      Risk reason: {failedProofGaps(pr.proof)[0]?.label ?? pr.proof.verdictReason}
+                    </span>
                   </span>
                   <span className={`grid h-12 w-12 shrink-0 place-items-center rounded-lg bg-gradient-to-br font-extrabold ${riskTone(pr.score.score)}`}>{pr.score.score}</span>
                 </button>
@@ -660,15 +755,18 @@ function ArtifactWorkspace({ track, proof, onCopy }: { track: TrackConfig; proof
 
   const merits = proof.missingProof.filter((item) => item.passed).map((item) => item.label);
   const demerits = proof.missingProof.filter((item) => !item.passed).map((item) => item.label);
+  const proofGapCount = visibleProofGapCount(proof);
   const metricEntries = Object.entries(proof.hollowScore.metrics);
 
   return (
     <>
+      <VerdictCard proof={proof} />
+
       <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         <MetricCard label="Human Proof" value={proof.proofScore} icon={<ShieldCheck size={18} />} tone={proofTone(proof.proofScore)} helper={proof.proofBand} />
         <MetricCard label="Hollow Score" value={proof.hollowScore.score} icon={<Gauge size={18} />} tone={riskTone(proof.hollowScore.score)} helper={proof.hollowScore.band} />
-        <MetricCard label="Missing Checks" value={demerits.length} icon={<AlertTriangle size={18} />} tone="from-flag to-block text-white" helper="Needs attention" />
-        <MetricCard label="Claims Found" value={proof.claims.length} icon={<Target size={18} />} tone="from-aurora to-cyan-200 text-inverse" helper="Mapped to evidence" />
+        <MetricCard label="Proof Gaps" value={proofGapCount} icon={<AlertTriangle size={18} />} tone="from-flag to-block text-white" helper={proofGapCount ? "Needs attention" : "No checklist gaps"} />
+        <MetricCard label="Claims Checked" value={proof.claims.length} icon={<Target size={18} />} tone="from-aurora to-cyan-200 text-inverse" helper="Mapped to evidence" />
       </section>
 
       <section className="analysis-two-column">
@@ -677,10 +775,10 @@ function ArtifactWorkspace({ track, proof, onCopy }: { track: TrackConfig; proof
       </section>
 
       <section className="analysis-two-column">
-        <Panel title="Merits and Demerits" eyebrow={`${track.label} analysis`}>
+        <Panel title="Evidence Found and Proof Gaps" eyebrow={`${track.label} analysis`}>
           <div className="grid gap-3 sm:grid-cols-2">
-            <SignalList title="Merits" empty="No strong proof checks passed yet." items={merits} tone="proof" />
-            <SignalList title="Demerits" empty="No missing proof checks found." items={demerits} tone="block" />
+            <SignalList title="Evidence Found" empty="No strong proof checks passed yet." items={merits} tone="proof" />
+            <SignalList title="Proof Gaps" empty="No missing proof checks found." items={demerits} tone="block" />
           </div>
         </Panel>
         <Panel title="Scoring Metrics" eyebrow="Signals">
@@ -726,6 +824,25 @@ function ArtifactWorkspace({ track, proof, onCopy }: { track: TrackConfig; proof
         </Panel>
       </section>
     </>
+  );
+}
+
+function VerdictCard({ proof }: { proof: ProofAnalysisResult }) {
+  return (
+    <section className={`rounded-2xl border p-4 shadow-soft backdrop-blur-xl ${verdictTone(proof.verdict)}`}>
+      <span className="text-caption font-bold uppercase text-muted">Verdict</span>
+      <h2 className="mt-2 text-title-xl text-ink">{proof.verdictLabel}</h2>
+      <div className="mt-3 grid gap-3 md:grid-cols-2">
+        <div>
+          <span className="text-caption font-bold uppercase text-muted">Reason</span>
+          <p className="mt-1 text-body-sm text-muted">{proof.verdictReason}</p>
+        </div>
+        <div>
+          <span className="text-caption font-bold uppercase text-muted">Next Action</span>
+          <p className="mt-1 text-body-sm font-bold text-ink">{proof.nextAction}</p>
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -775,35 +892,35 @@ function SignalList({ title, items, empty, tone }: { title: string; items: strin
 
 function AiReviewPanel({ review, onCopy }: { review?: AiReview; onCopy?: (text: string, label?: string) => void }) {
   if (!review) {
-    return <InfoPanel icon={<ShieldCheck size={19} />} title="AI Review" text="AI review will appear here when a configured provider responds." />;
+    return <InfoPanel icon={<ShieldCheck size={19} />} title="Proof Review Summary" text="Proof review will appear here when a configured provider responds." />;
   }
 
   if (review.status !== "generated") {
-    const text = review.status === "disabled" ? "AI review is disabled. The deterministic proof engine is still active." : review.error ?? "No AI provider responded. Deterministic analysis is still active.";
-    return <InfoPanel icon={<ShieldCheck size={19} />} title="AI Review" text={text} />;
+    const text = review.status === "disabled" ? "Proof review is disabled. The deterministic proof engine is still active." : review.error ?? "No AI provider responded. Deterministic analysis is still active.";
+    return <InfoPanel icon={<ShieldCheck size={19} />} title="Proof Review Summary" text={text} />;
   }
 
   const provider = [review.provider, review.model].filter(Boolean).join(" / ");
   return (
-    <Panel title="AI Review" eyebrow={provider || "Configured provider"}>
+    <Panel title="Proof Review Summary" eyebrow={provider || "Configured provider"}>
       <div className="grid gap-3">
         {review.summary ? <p className="text-body-sm text-muted">{review.summary}</p> : null}
         <div className="grid gap-2 sm:grid-cols-2">
-          <MiniStat label="Confidence" value={typeof review.confidence === "number" ? `${Math.round(review.confidence * 100)}%` : "--"} />
-          <MiniStat label="Human Review" value={review.needsHumanReview ? "Needed" : "Optional"} />
+          <MiniStat label="Review Confidence" value={typeof review.confidence === "number" ? `${Math.round(review.confidence * 100)}%` : "--"} />
+          <MiniStat label="Reviewer Check" value={review.needsHumanReview ? "Needed" : "Optional"} />
         </div>
-        <SignalList title="AI Strengths" empty="No strengths returned." items={review.strengths} tone="proof" />
-        <SignalList title="AI Weaknesses" empty="No weaknesses returned." items={[...review.weaknesses, ...review.issues]} tone="block" />
-        <SignalList title="AI Recommendations" empty="No recommendations returned." items={review.recommendations} tone="proof" />
+        <SignalList title="Evidence Found" empty="No strengths returned." items={review.strengths} tone="proof" />
+        <SignalList title="Proof Gaps" empty="No weaknesses returned." items={[...review.weaknesses, ...review.issues]} tone="block" />
+        <SignalList title="Recommended Fixes" empty="No recommendations returned." items={review.recommendations} tone="proof" />
         {review.rewrite ? (
           <div className="rounded-xl border border-aurora/30 bg-aurora-soft/25 p-3">
             <div className="flex flex-col items-start justify-between gap-3 sm:flex-row">
               <div className="min-w-0">
-                <span className="text-caption font-bold uppercase text-muted">AI Fix Rewrite</span>
+                <span className="text-caption font-bold uppercase text-muted">Safer Rewrite</span>
                 <p className="mt-1 whitespace-pre-wrap text-body-sm text-ink">{review.rewrite}</p>
               </div>
               {onCopy ? (
-                <button className={`${secondaryButton} shrink-0`} type="button" onClick={() => onCopy(review.rewrite ?? "", "AI rewrite copied.")}>
+                <button className={`${secondaryButton} shrink-0`} type="button" onClick={() => onCopy(review.rewrite ?? "", "Safer rewrite copied.")}>
                   <Clipboard size={17} />
                   Copy
                 </button>
@@ -887,16 +1004,16 @@ function ProofCard({ proof, onCopy }: { proof: ProofAnalysisResult; onCopy?: (te
     <article className="rounded-xl border border-line/80 bg-elevated/70 p-4">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <span className="text-caption font-bold uppercase text-muted">Human Proof Score</span>
-          <h3 className="mt-1 text-title-lg text-ink">{proof.proofBand}</h3>
+          <span className="text-caption font-bold uppercase text-muted">Verdict</span>
+          <h3 className="mt-1 text-title-lg text-ink">{proof.verdictLabel}</h3>
         </div>
         <span className={`grid h-14 w-14 place-items-center rounded-xl bg-gradient-to-br text-xl font-extrabold ${proofTone(proof.proofScore)}`}>{proof.proofScore}</span>
       </div>
-      <p className="mt-3 text-body-sm text-muted">{proof.summary}</p>
+      <p className="mt-3 text-body-sm text-muted">{proof.verdictReason}</p>
       <div className="mt-4 grid grid-cols-3 gap-2">
         <MiniStat label="Hollow" value={proof.hollowScore.score} />
-        <MiniStat label="Missing" value={proof.missingProof.filter((item) => !item.passed).length} />
-        <MiniStat label="Claims" value={proof.claims.length} />
+        <MiniStat label="Proof Gaps" value={visibleProofGapCount(proof)} />
+        <MiniStat label="Claims Checked" value={proof.claims.length} />
       </div>
       <div className="mt-4">
         <span className="text-caption font-bold uppercase text-muted">Questions</span>

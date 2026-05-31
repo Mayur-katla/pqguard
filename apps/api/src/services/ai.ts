@@ -1,5 +1,6 @@
 import type { ProofAnalysisInput, ProofAnalysisResult } from "@prguard/scoring";
 import { config } from "../config.js";
+import { maskSensitiveText, maskStringArray } from "./privacy.js";
 
 export interface AiReview {
   enabled: boolean;
@@ -124,12 +125,11 @@ function parseAiReview(result: ProviderResult): AiReview {
       status: "generated",
       provider: result.provider,
       model: result.model,
-      summary: result.text.trim().slice(0, 420),
+      summary: maskSensitiveText(result.text.trim().slice(0, 420)),
       strengths: [],
       weaknesses: [],
       issues: [],
-      recommendations: [],
-      raw: result.text
+      recommendations: []
     };
   }
 
@@ -138,15 +138,14 @@ function parseAiReview(result: ProviderResult): AiReview {
     status: "generated",
     provider: result.provider,
     model: result.model,
-    summary: typeof parsed.summary === "string" ? parsed.summary.slice(0, 420) : undefined,
+    summary: typeof parsed.summary === "string" ? maskSensitiveText(parsed.summary.slice(0, 420)) : undefined,
     confidence: typeof parsed.confidence === "number" ? Math.max(0, Math.min(1, parsed.confidence)) : undefined,
     needsHumanReview: typeof parsed.needsHumanReview === "boolean" ? parsed.needsHumanReview : undefined,
-    strengths: arrayOfStrings(parsed.strengths),
-    weaknesses: arrayOfStrings(parsed.weaknesses),
-    issues: arrayOfStrings(parsed.issues),
-    recommendations: arrayOfStrings(parsed.recommendations),
-    rewrite: typeof parsed.rewrite === "string" ? parsed.rewrite.trim().slice(0, 3000) : undefined,
-    raw: result.text
+    strengths: maskStringArray(arrayOfStrings(parsed.strengths)),
+    weaknesses: maskStringArray(arrayOfStrings(parsed.weaknesses)),
+    issues: maskStringArray(arrayOfStrings(parsed.issues)),
+    recommendations: maskStringArray(arrayOfStrings(parsed.recommendations)),
+    rewrite: typeof parsed.rewrite === "string" ? maskSensitiveText(parsed.rewrite.trim().slice(0, 3000)) : undefined
   };
 }
 

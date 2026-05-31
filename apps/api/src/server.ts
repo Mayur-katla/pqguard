@@ -9,7 +9,7 @@ import { checkDb, saveScan } from "./db.js";
 import { enrichProofAnalysis } from "./services/ai.js";
 import { generateGithubActionYaml } from "./services/ci.js";
 import { RepoUrlError, scanGitHubRepository } from "./services/github.js";
-import { toCsv, toMarkdown, toPdf } from "./services/reports.js";
+import { sanitizeScanReport, toCsv, toMarkdown, toPdf } from "./services/reports.js";
 
 const app = express();
 
@@ -129,7 +129,7 @@ const reportSchema = z.object({
 app.post("/api/report", async (req, res, next) => {
   try {
     const input = reportSchema.parse(req.body);
-    if (input.format === "json") return res.json(input.scan);
+    if (input.format === "json") return res.json(sanitizeScanReport(input.scan));
     if (input.format === "csv") return res.type("text/csv").send(toCsv(input.scan));
     if (input.format === "md") return res.type("text/markdown").send(toMarkdown(input.scan));
     const pdf = await toPdf(input.scan);

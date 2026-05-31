@@ -2,6 +2,8 @@ export type AnalysisMode = "code_review" | "docs" | "hiring" | "communications";
 
 export type ScoreBand = "Clean" | "Review" | "Flag" | "Block";
 
+export type ProofVerdict = "strong_proof" | "needs_review" | "high_risk" | "blocker" | "mostly_clear_needs_timing";
+
 export interface ScoreComponent {
   name: string;
   score: number;
@@ -62,6 +64,10 @@ export interface ProofAnalysisResult {
   hollowScore: HollowScore;
   proofScore: number;
   proofBand: "Strong" | "Partial" | "Weak" | "Missing";
+  verdict: ProofVerdict;
+  verdictLabel: string;
+  verdictReason: string;
+  nextAction: string;
   missingProof: ProofChecklistItem[];
   claims: ClaimEvidence[];
   questions: string[];

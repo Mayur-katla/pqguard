@@ -45,6 +45,8 @@ describe("analyzeProof", () => {
     });
 
     expect(result.proofScore).toBeLessThan(50);
+    expect(result.verdictLabel).not.toBe("Strong Proof");
+    expect(result.nextAction.length).toBeGreaterThan(0);
     expect(result.questions.length).toBeGreaterThan(0);
     expect(result.fixPlan.length).toBeGreaterThan(0);
   });

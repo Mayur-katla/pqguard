@@ -1,8 +1,8 @@
 # PRGuard
 
-AI slop detector for GitHub code review workflows.
+Human Proof Scanner for GitHub code review, docs, hiring, and workplace communication.
 
-PRGuard scans pull requests, commit messages, diffs, review comments, docs, hiring materials, and workplace messages to detect content that sounds complete but lacks proof a human understood or verified it. It is built for SlopScan Track A as the primary track, with Tracks B/C/D covered through one shared Human Review Proof engine.
+PRGuard scans pull requests, commit messages, diffs, review comments, docs, hiring materials, and workplace messages to detect content that sounds complete but lacks proof a human understood or verified it. It is built for SlopScan Track A as the primary track, with Tracks B/C/D covered through one shared Human Proof engine.
 
 Winning angle:
 
@@ -35,11 +35,12 @@ docker-compose up --build
 - Heatmap, score trend, ranked evidence queue, and PR detail drill-down.
 - UniversalAnalyzer for pasted text across docs, resumes, team messages, and code review artifacts.
 - Human Proof Score for Code Review, Docs, Hiring, and Communications.
-- Missing Proof checklist, Claim-to-Evidence Map, verifier questions, and fix plan.
+- Verdict, reason, next action, Proof Gaps checklist, Claim-to-Evidence Map, reviewer questions, and fix plan.
+- Optional proof review summary with Evidence Found, Proof Gaps, Recommended Fixes, and Safer Rewrite.
 - Above-the-fold text analyzer for Track A/B/C/D live input.
 - Shareable score card copy action.
 - GitHub Actions YAML generator for merge gating.
-- JSON, CSV, Markdown, and PDF exports.
+- Privacy-safe JSON, CSV, Markdown, and PDF exports with verdicts, proof gaps, fixes, and reviewer questions.
 - Live-only UI flow: scan a real GitHub repository or paste real content.
 
 ## Environment Variables
@@ -138,6 +139,7 @@ False negative rate: 0.00
 
 - GitHub tokens are accepted only through environment variables or the scan form and are not stored by the frontend.
 - Backend error messages redact bearer tokens.
+- Generated reviews, copy actions, and exports mask emails, phone numbers, GitHub/LinkedIn profile URLs, bearer tokens, and GitHub-style tokens by default.
 - Request bodies are size-limited.
 - Inputs are validated with Zod.
 - Rendered content is treated as text, not unsafe HTML.
