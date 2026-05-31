@@ -53,6 +53,7 @@ export interface AiReview {
   weaknesses: string[];
   issues: string[];
   recommendations: string[];
+  rewrite?: string;
   error?: string;
 }
 

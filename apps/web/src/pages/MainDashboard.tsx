@@ -384,7 +384,7 @@ export function MainDashboard() {
           <div className="grid gap-4 lg:grid-cols-2">
             <ScoreCard pr={selectedPr} />
             <ProofCard proof={selectedPr.proof} onCopy={copyText} />
-            <AiReviewPanel review={selectedPr.proof.aiReview} />
+            <AiReviewPanel review={selectedPr.proof.aiReview} onCopy={copyText} />
             <button className={secondaryButton} type="button" onClick={() => setActiveModal("evidence")}>
               Evidence Map
             </button>
@@ -673,7 +673,7 @@ function ArtifactWorkspace({ track, proof, onCopy }: { track: TrackConfig; proof
 
       <section className="analysis-two-column">
         <ProofCard proof={proof} onCopy={onCopy} />
-        <AiReviewPanel review={proof.aiReview} />
+        <AiReviewPanel review={proof.aiReview} onCopy={onCopy} />
       </section>
 
       <section className="analysis-two-column">
@@ -773,7 +773,7 @@ function SignalList({ title, items, empty, tone }: { title: string; items: strin
   );
 }
 
-function AiReviewPanel({ review }: { review?: AiReview }) {
+function AiReviewPanel({ review, onCopy }: { review?: AiReview; onCopy?: (text: string, label?: string) => void }) {
   if (!review) {
     return <InfoPanel icon={<ShieldCheck size={19} />} title="AI Review" text="AI review will appear here when a configured provider responds." />;
   }
@@ -795,6 +795,22 @@ function AiReviewPanel({ review }: { review?: AiReview }) {
         <SignalList title="AI Strengths" empty="No strengths returned." items={review.strengths} tone="proof" />
         <SignalList title="AI Weaknesses" empty="No weaknesses returned." items={[...review.weaknesses, ...review.issues]} tone="block" />
         <SignalList title="AI Recommendations" empty="No recommendations returned." items={review.recommendations} tone="proof" />
+        {review.rewrite ? (
+          <div className="rounded-xl border border-aurora/30 bg-aurora-soft/25 p-3">
+            <div className="flex flex-col items-start justify-between gap-3 sm:flex-row">
+              <div className="min-w-0">
+                <span className="text-caption font-bold uppercase text-muted">AI Fix Rewrite</span>
+                <p className="mt-1 whitespace-pre-wrap text-body-sm text-ink">{review.rewrite}</p>
+              </div>
+              {onCopy ? (
+                <button className={`${secondaryButton} shrink-0`} type="button" onClick={() => onCopy(review.rewrite ?? "", "AI rewrite copied.")}>
+                  <Clipboard size={17} />
+                  Copy
+                </button>
+              ) : null}
+            </div>
+          </div>
+        ) : null}
       </div>
     </Panel>
   );

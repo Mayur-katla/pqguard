@@ -13,6 +13,7 @@ export interface AiReview {
   weaknesses: string[];
   issues: string[];
   recommendations: string[];
+  rewrite?: string;
   raw?: string;
   error?: string;
 }
@@ -33,13 +34,14 @@ interface AiJson {
   weaknesses?: unknown;
   issues?: unknown;
   recommendations?: unknown;
+  rewrite?: unknown;
 }
 
 const SYSTEM_PROMPT = [
   "You are PRGuard's AI review layer.",
   "Use the deterministic scores as evidence, but do not blindly repeat them.",
   "Find concrete proof gaps, unsupported claims, reviewer questions, merits, demerits, and practical next actions.",
-  "Return strict JSON only with keys: summary, confidence, needsHumanReview, strengths, weaknesses, issues, recommendations.",
+  "Return strict JSON only with keys: summary, confidence, needsHumanReview, strengths, weaknesses, issues, recommendations, rewrite.",
   "Use arrays of short strings for strengths, weaknesses, issues, and recommendations."
 ].join(" ");
 
@@ -58,6 +60,13 @@ function normalizeError(error: unknown) {
 }
 
 function promptFor(input: ProofAnalysisInput, proof: ProofAnalysisResult) {
+  const rewriteInstruction: Record<ProofAnalysisInput["mode"], string> = {
+    code_review: "Rewrite the PR description so it names intent, changed areas, tests, risk, and rollback notes without inventing unsupported facts.",
+    docs: "Rewrite the docs excerpt so it has concrete steps, an example, expected output, and missing config placeholders without inventing product behavior.",
+    hiring: "Rewrite the hiring text so it is specific, evidence-backed, measurable where possible, and clear about owned work without inventing fake metrics.",
+    communications: "Rewrite the message so it has a clear ask or decision, owner, deadline or timing, and next action without inventing commitments."
+  };
+
   return [
     `Mode: ${input.mode}`,
     `Title: ${input.title ?? "Untitled"}`,
@@ -74,7 +83,8 @@ function promptFor(input: ProofAnalysisInput, proof: ProofAnalysisResult) {
       failedChecks: proof.missingProof.filter((item) => !item.passed).map((item) => item.label),
       claims: proof.claims.map((claim) => ({ claim: claim.claim, status: claim.status, missing: claim.missing })),
       fixPlan: proof.fixPlan
-    })}`
+    })}`,
+    `Rewrite task: ${rewriteInstruction[input.mode]} If facts are missing, preserve placeholders like [add test name], [owner], [deadline], or [metric] instead of making them up.`
   ]
     .filter(Boolean)
     .join("\n\n");
@@ -135,6 +145,7 @@ function parseAiReview(result: ProviderResult): AiReview {
     weaknesses: arrayOfStrings(parsed.weaknesses),
     issues: arrayOfStrings(parsed.issues),
     recommendations: arrayOfStrings(parsed.recommendations),
+    rewrite: typeof parsed.rewrite === "string" ? parsed.rewrite.trim().slice(0, 3000) : undefined,
     raw: result.text
   };
 }
