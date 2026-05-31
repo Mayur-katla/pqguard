@@ -99,6 +99,26 @@ npm run evaluate  # local evaluation metrics
 npm run check     # production verification
 ```
 
+## Deployment
+
+Render backend:
+
+```text
+Root Directory: leave blank
+Build Command: npm ci --include=dev && npm --workspace @prguard/scoring run build && npm --workspace @prguard/api run build
+Start Command: npm --workspace @prguard/api run start
+Health Check Path: /api/health
+```
+
+The `--include=dev` flag is required because TypeScript, ESLint, and `@types/*` packages are build-time dependencies.
+
+Vercel frontend:
+
+```text
+Build Command: npm --workspace @prguard/web run build
+Output Directory: apps/web/dist
+```
+
 ## API
 
 - `GET /api/health`

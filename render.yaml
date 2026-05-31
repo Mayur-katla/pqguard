@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: pqguard
+    runtime: node
+    plan: free
+    branch: main
+    buildCommand: npm ci --include=dev && npm --workspace @prguard/scoring run build && npm --workspace @prguard/api run build
+    startCommand: npm --workspace @prguard/api run start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: 22.13.0
+      - key: NODE_ENV
+        value: production
+      - key: CORS_ORIGIN
+        value: https://pqguard.vercel.app
+      - key: PRGUARD_AI_ENABLED
+        value: true
+      - key: PRGUARD_AI_TIMEOUT_MS
+        value: 12000
+      - key: PRGUARD_AI_SCAN_LIMIT
+        value: 3
