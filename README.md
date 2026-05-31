@@ -147,7 +147,7 @@ For private repositories, teams should review their data retention policy before
 
 ## AI Usage Disclosure
 
-PRGuard may use optional external AI providers when configured. The current implementation always includes a deterministic heuristics fallback.
+PRGuard uses deterministic heuristics as its baseline and adds an optional AI review layer when provider keys are configured. The API currently tries Gemini first, then Groq, then Ollama, and returns provider/model metadata with each AI review. If every provider is unavailable, the deterministic analysis still works.
 
 ## License
 

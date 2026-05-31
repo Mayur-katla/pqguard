@@ -41,6 +41,21 @@ export interface FixStep {
   priority: "low" | "medium" | "high";
 }
 
+export interface AiReview {
+  enabled: boolean;
+  status: "generated" | "unavailable" | "disabled";
+  provider?: "gemini" | "groq" | "ollama";
+  model?: string;
+  summary?: string;
+  confidence?: number;
+  needsHumanReview?: boolean;
+  strengths: string[];
+  weaknesses: string[];
+  issues: string[];
+  recommendations: string[];
+  error?: string;
+}
+
 export interface ProofAnalysisResult {
   mode: AnalysisMode;
   hollowScore: HollowScore;
@@ -51,6 +66,7 @@ export interface ProofAnalysisResult {
   questions: string[];
   fixPlan: FixStep[];
   summary: string;
+  aiReview?: AiReview;
 }
 
 export interface PullRequestScore {

@@ -6,6 +6,7 @@ import { z } from "zod";
 import { analyzeProof, detectUniversalContext, modeFromContext, scoreArtifact } from "@prguard/scoring";
 import { config, providerStatus } from "./config.js";
 import { checkDb, saveScan } from "./db.js";
+import { enrichProofAnalysis } from "./services/ai.js";
 import { generateGithubActionYaml } from "./services/ci.js";
 import { RepoUrlError, scanGitHubRepository } from "./services/github.js";
 import { toCsv, toMarkdown, toPdf } from "./services/reports.js";
@@ -54,7 +55,7 @@ const analyzeSchema = z.object({
   mode: z.enum(["code_review", "docs", "hiring", "communications"]).optional()
 });
 
-app.post("/api/analyze", (req, res, next) => {
+app.post("/api/analyze", async (req, res, next) => {
   try {
     const input = analyzeSchema.parse(req.body);
     const context = detectUniversalContext(input.text);
@@ -64,12 +65,13 @@ app.post("/api/analyze", (req, res, next) => {
       title: input.title ?? context,
       body: input.text
     });
-    const proof = analyzeProof({
+    const proofInput = {
       mode,
       kind: mode === "code_review" ? "pull_request" : "universal_text",
       title: input.title ?? context,
       body: input.text
-    });
+    } as const;
+    const proof = await enrichProofAnalysis(analyzeProof(proofInput), proofInput);
     res.json({ context, mode, score, proof });
   } catch (error) {
     next(error);
@@ -86,21 +88,20 @@ const proofSchema = z.object({
   comments: z.array(z.object({ body: z.string(), author: z.string().optional(), path: z.string().optional(), date: z.string().optional() })).optional()
 });
 
-app.post("/api/proof/analyze", (req, res, next) => {
+app.post("/api/proof/analyze", async (req, res, next) => {
   try {
     const input = proofSchema.parse(req.body);
-    res.json(
-      analyzeProof({
-        mode: input.mode,
-        kind: input.mode === "code_review" ? "pull_request" : "universal_text",
-        title: input.title,
-        body: input.text,
-        diff: input.diff,
-        files: input.files,
-        commits: input.commits,
-        comments: input.comments
-      })
-    );
+    const proofInput = {
+      mode: input.mode,
+      kind: input.mode === "code_review" ? "pull_request" : "universal_text",
+      title: input.title,
+      body: input.text,
+      diff: input.diff,
+      files: input.files,
+      commits: input.commits,
+      comments: input.comments
+    } as const;
+    res.json(await enrichProofAnalysis(analyzeProof(proofInput), proofInput));
   } catch (error) {
     next(error);
   }

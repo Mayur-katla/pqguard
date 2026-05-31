@@ -21,7 +21,7 @@ import {
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { analyzeProof, downloadReport, getCiYaml, scanRepo } from "../lib/api";
-import type { AnalysisMode, ClaimEvidence, FixStep, ProofAnalysisResult, PullRequestScore, ScanResult } from "../lib/types";
+import type { AiReview, AnalysisMode, ClaimEvidence, FixStep, ProofAnalysisResult, PullRequestScore, ScanResult } from "../lib/types";
 import { Modal } from "../components/Modal";
 import { Toast } from "../components/Toast";
 
@@ -384,6 +384,7 @@ export function MainDashboard() {
           <div className="grid gap-4 lg:grid-cols-2">
             <ScoreCard pr={selectedPr} />
             <ProofCard proof={selectedPr.proof} onCopy={copyText} />
+            <AiReviewPanel review={selectedPr.proof.aiReview} />
             <button className={secondaryButton} type="button" onClick={() => setActiveModal("evidence")}>
               Evidence Map
             </button>
@@ -672,10 +673,21 @@ function ArtifactWorkspace({ track, proof, onCopy }: { track: TrackConfig; proof
 
       <section className="analysis-two-column">
         <ProofCard proof={proof} onCopy={onCopy} />
+        <AiReviewPanel review={proof.aiReview} />
+      </section>
+
+      <section className="analysis-two-column">
         <Panel title="Merits and Demerits" eyebrow={`${track.label} analysis`}>
           <div className="grid gap-3 sm:grid-cols-2">
             <SignalList title="Merits" empty="No strong proof checks passed yet." items={merits} tone="proof" />
             <SignalList title="Demerits" empty="No missing proof checks found." items={demerits} tone="block" />
+          </div>
+        </Panel>
+        <Panel title="Scoring Metrics" eyebrow="Signals">
+          <div className="grid gap-2 sm:grid-cols-2">
+            {metricEntries.map(([name, value]) => (
+              <MiniStat key={name} label={name.replace(/[A-Z]/g, " $&")} value={value} />
+            ))}
           </div>
         </Panel>
       </section>
@@ -694,21 +706,23 @@ function ArtifactWorkspace({ track, proof, onCopy }: { track: TrackConfig; proof
             ))}
           </div>
         </Panel>
-        <Panel title="Scoring Metrics" eyebrow="Signals">
-          <div className="grid gap-2 sm:grid-cols-2">
-            {metricEntries.map(([name, value]) => (
-              <MiniStat key={name} label={name.replace(/[A-Z]/g, " $&")} value={value} />
-            ))}
-          </div>
+        <Panel title="Claim to Evidence Map" eyebrow="Evidence">
+          <EvidenceMap claims={proof.claims} />
         </Panel>
       </section>
 
       <section className="analysis-two-column">
-        <Panel title="Claim to Evidence Map" eyebrow="Evidence">
-          <EvidenceMap claims={proof.claims} />
-        </Panel>
         <Panel title="Fix Plan" eyebrow="Next actions">
           <FixPlan steps={proof.fixPlan} onCopy={onCopy} />
+        </Panel>
+        <Panel title="Reviewer Questions" eyebrow="Follow-up">
+          <ul className="grid gap-2">
+            {proof.questions.map((question) => (
+              <li className="rounded-lg border border-line/60 bg-elevated/70 p-3 text-body-sm text-muted" key={question}>
+                {question}
+              </li>
+            ))}
+          </ul>
         </Panel>
       </section>
     </>
@@ -756,6 +770,33 @@ function SignalList({ title, items, empty, tone }: { title: string; items: strin
         )}
       </div>
     </div>
+  );
+}
+
+function AiReviewPanel({ review }: { review?: AiReview }) {
+  if (!review) {
+    return <InfoPanel icon={<ShieldCheck size={19} />} title="AI Review" text="AI review will appear here when a configured provider responds." />;
+  }
+
+  if (review.status !== "generated") {
+    const text = review.status === "disabled" ? "AI review is disabled. The deterministic proof engine is still active." : review.error ?? "No AI provider responded. Deterministic analysis is still active.";
+    return <InfoPanel icon={<ShieldCheck size={19} />} title="AI Review" text={text} />;
+  }
+
+  const provider = [review.provider, review.model].filter(Boolean).join(" / ");
+  return (
+    <Panel title="AI Review" eyebrow={provider || "Configured provider"}>
+      <div className="grid gap-3">
+        {review.summary ? <p className="text-body-sm text-muted">{review.summary}</p> : null}
+        <div className="grid gap-2 sm:grid-cols-2">
+          <MiniStat label="Confidence" value={typeof review.confidence === "number" ? `${Math.round(review.confidence * 100)}%` : "--"} />
+          <MiniStat label="Human Review" value={review.needsHumanReview ? "Needed" : "Optional"} />
+        </div>
+        <SignalList title="AI Strengths" empty="No strengths returned." items={review.strengths} tone="proof" />
+        <SignalList title="AI Weaknesses" empty="No weaknesses returned." items={[...review.weaknesses, ...review.issues]} tone="block" />
+        <SignalList title="AI Recommendations" empty="No recommendations returned." items={review.recommendations} tone="proof" />
+      </div>
+    </Panel>
   );
 }
 

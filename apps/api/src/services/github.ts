@@ -1,5 +1,6 @@
 import { analyzeProof, scoreArtifact } from "@prguard/scoring";
 import { config, providerStatus } from "../config.js";
+import { enrichProofAnalysis } from "./ai.js";
 import type { ScanPr, ScanResult } from "./types.js";
 
 interface GitHubPullRequest {
@@ -137,25 +138,29 @@ export async function scanGitHubRepository(repoUrl: string, requestToken?: strin
       }))
     };
 
+    const score = scoreArtifact({
+      kind: "pull_request",
+      title: normalized.title,
+      body: normalized.body,
+      files: normalized.files,
+      commits: normalized.commits,
+      comments: normalized.comments
+    });
+    const proofInput = {
+      mode: "code_review",
+      kind: "pull_request",
+      title: normalized.title,
+      body: normalized.body,
+      files: normalized.files,
+      commits: normalized.commits,
+      comments: normalized.comments
+    } as const;
+    const proof = analyzeProof(proofInput);
+
     pullRequests.push({
       ...normalized,
-      score: scoreArtifact({
-        kind: "pull_request",
-        title: normalized.title,
-        body: normalized.body,
-        files: normalized.files,
-        commits: normalized.commits,
-        comments: normalized.comments
-      }),
-      proof: analyzeProof({
-        mode: "code_review",
-        kind: "pull_request",
-        title: normalized.title,
-        body: normalized.body,
-        files: normalized.files,
-        commits: normalized.commits,
-        comments: normalized.comments
-      })
+      score,
+      proof: pullRequests.length < config.aiScanLimit ? await enrichProofAnalysis(proof, proofInput) : proof
     });
   }
 
