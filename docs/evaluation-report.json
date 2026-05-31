@@ -1,71 +1,71 @@
 {
   "dataset": {
-    "total": 120,
+    "total": 240,
     "byTrack": {
-      "code_review": 30,
-      "docs": 30,
-      "hiring": 30,
-      "communications": 30
+      "code_review": 60,
+      "docs": 60,
+      "hiring": 60,
+      "communications": 60
     },
     "byLabel": {
-      "clean": 48,
-      "review": 32,
-      "slop": 40
+      "clean": 80,
+      "review": 80,
+      "slop": 80
     }
   },
   "results": {
-    "correct": 91,
+    "correct": 211,
     "incorrect": 29,
-    "accuracy": 0.76,
+    "accuracy": 0.88,
     "falsePositiveRate": 0,
     "falseNegativeRate": 0
   },
   "confusionMatrix": {
     "clean": {
-      "clean": 36,
+      "clean": 68,
       "review": 12,
       "slop": 0
     },
     "review": {
       "clean": 0,
-      "review": 29,
+      "review": 77,
       "slop": 3
     },
     "slop": {
       "clean": 0,
       "review": 14,
-      "slop": 26
+      "slop": 66
     }
   },
   "perTrackAccuracy": {
-    "code_review": 0.83,
-    "docs": 0.7,
-    "hiring": 0.77,
-    "communications": 0.73
+    "code_review": 0.92,
+    "docs": 0.85,
+    "hiring": 0.88,
+    "communications": 0.87
   },
   "perLabelAccuracy": {
-    "clean": 0.75,
-    "review": 0.91,
-    "slop": 0.65
+    "clean": 0.85,
+    "review": 0.96,
+    "slop": 0.82
   },
   "scoreAveragesByLabel": {
     "clean": {
-      "proofScore": 52.6,
-      "hollowScore": 22.3,
-      "failedChecks": 0.9,
-      "claims": 1
+      "proofScore": 55.6,
+      "hollowScore": 22.7,
+      "failedChecks": 0.6,
+      "claims": 0.9
     },
     "review": {
-      "proofScore": 52.2,
-      "hollowScore": 22,
-      "failedChecks": 1.5,
-      "claims": 0.5
+      "proofScore": 51.4,
+      "hollowScore": 23.4,
+      "failedChecks": 1.1,
+      "claims": 0.3
     },
     "slop": {
-      "proofScore": 42.2,
-      "hollowScore": 33,
-      "failedChecks": 2.6,
-      "claims": 0.7
+      "proofScore": 39,
+      "hollowScore": 36.2,
+      "failedChecks": 3.1,
+      "claims": 0.8
     }
   },
   "misclassified": [

@@ -1,6 +1,6 @@
 # PRGuard Full Track Testing Report
 
-Date: May 30, 2026
+Date: May 31, 2026
 
 Scope:
 
@@ -278,15 +278,15 @@ Output:
 
 ```json
 {
-  "total": 120,
-  "accuracy": 0.76,
+  "total": 240,
+  "accuracy": 0.88,
   "falsePositiveRate": 0,
   "falseNegativeRate": 0,
   "perTrackAccuracy": {
-    "code_review": 0.83,
-    "docs": 0.7,
-    "hiring": 0.77,
-    "communications": 0.73
+    "code_review": 0.92,
+    "docs": 0.85,
+    "hiring": 0.88,
+    "communications": 0.87
   }
 }
 ```

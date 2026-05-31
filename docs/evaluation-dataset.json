@@ -718,5 +718,725 @@
     "label": "slop",
     "title": "Vague decision summary",
     "text": "We discussed the options and landed in a good place. The team is aligned and next steps will be handled appropriately."
+  },
+  {
+    "mode": "code_review",
+    "label": "clean",
+    "title": "Enforce webhook timestamp skew",
+    "text": "Enforce webhook timestamp skew because reviewers found replay attacks. Changes touch webhooks/verify.ts, add validation around the failing branch, and include webhooks/verify.test.ts. Verified the regression test plus a manual rollback check so the risky path is documented before merge."
+  },
+  {
+    "mode": "code_review",
+    "label": "clean",
+    "title": "Persist invoice audit actor",
+    "text": "Persist invoice audit actor because reviewers found finance audit actor trace gaps. Changes touch billing/audit.ts, add validation around the failing branch, and include billing/audit.spec.ts. Verified the regression test plus a manual rollback check so the risky path is documented before merge."
+  },
+  {
+    "mode": "code_review",
+    "label": "clean",
+    "title": "Fix cache key for tenant settings",
+    "text": "Fix cache key for tenant settings because reviewers found cross tenant cache bleed. Changes touch apps/api/cache.ts, add validation around the failing branch, and include cache/settings.test.ts. Verified the regression test plus a manual rollback check so the risky path is documented before merge."
+  },
+  {
+    "mode": "code_review",
+    "label": "clean",
+    "title": "Guard duplicate invite accept",
+    "text": "Guard duplicate invite accept because reviewers found double membership creation. Changes touch apps/api/invites.ts, add validation around the failing branch, and include invites/accept.spec.ts. Verified the regression test plus a manual rollback check so the risky path is documented before merge."
+  },
+  {
+    "mode": "code_review",
+    "label": "clean",
+    "title": "Validate CSV import row limit",
+    "text": "Validate CSV import row limit because reviewers found large upload timeouts. Changes touch imports/csv.ts, add validation around the failing branch, and include imports/csv.spec.ts. Verified the regression test plus a manual rollback check so the risky path is documented before merge."
+  },
+  {
+    "mode": "code_review",
+    "label": "clean",
+    "title": "Add billing webhook retry backoff",
+    "text": "Add billing webhook retry backoff because reviewers found provider retry storms. Changes touch billing/webhooks.ts, add validation around the failing branch, and include billing/webhooks.spec.ts. Verified the regression test plus a manual rollback check so the risky path is documented before merge."
+  },
+  {
+    "mode": "code_review",
+    "label": "clean",
+    "title": "Handle empty search query",
+    "text": "Handle empty search query because reviewers found blank query errors. Changes touch apps/web/search.tsx, add validation around the failing branch, and include search/results.test.tsx. Verified the regression test plus a manual rollback check so the risky path is documented before merge."
+  },
+  {
+    "mode": "code_review",
+    "label": "clean",
+    "title": "Tighten admin export permission",
+    "text": "Tighten admin export permission because reviewers found unauthorized report downloads. Changes touch apps/api/export.ts, add validation around the failing branch, and include export/admin.spec.ts. Verified the regression test plus a manual rollback check so the risky path is documented before merge."
+  },
+  {
+    "mode": "code_review",
+    "label": "review",
+    "title": "Update notification batching",
+    "text": "Update notification batching updates notifications/queue.ts because the current path creates noisy behavior in staging. It names the changed file and mentions a manual check, but rollback impact, edge-case tests, and reviewer risk are missing."
+  },
+  {
+    "mode": "code_review",
+    "label": "review",
+    "title": "Adjust checkout rounding",
+    "text": "Adjust checkout rounding updates billing/checkout.ts because the current path creates noisy behavior in staging. It names the changed file and mentions a manual check, but rollback impact, edge-case tests, and reviewer risk are missing."
+  },
+  {
+    "mode": "code_review",
+    "label": "review",
+    "title": "Move auth cookie domain",
+    "text": "Move auth cookie domain updates auth/cookies.ts because the current path creates noisy behavior in staging. It names the changed file and mentions a manual check, but rollback impact, edge-case tests, and reviewer risk are missing."
+  },
+  {
+    "mode": "code_review",
+    "label": "review",
+    "title": "Refactor analytics sender",
+    "text": "Refactor analytics sender updates analytics/sender.ts because the current path creates noisy behavior in staging. It names the changed file and mentions a manual check, but rollback impact, edge-case tests, and reviewer risk are missing."
+  },
+  {
+    "mode": "code_review",
+    "label": "review",
+    "title": "Add profile image compression",
+    "text": "Add profile image compression updates apps/web/profile.tsx because the current path creates noisy behavior in staging. It names the changed file and mentions a manual check, but rollback impact, edge-case tests, and reviewer risk are missing."
+  },
+  {
+    "mode": "code_review",
+    "label": "review",
+    "title": "Rework project invite emails",
+    "text": "Rework project invite emails updates email/invites.ts because the current path creates noisy behavior in staging. It names the changed file and mentions a manual check, but rollback impact, edge-case tests, and reviewer risk are missing."
+  },
+  {
+    "mode": "code_review",
+    "label": "review",
+    "title": "Change Mongo index order",
+    "text": "Change Mongo index order updates migrations/2026-05-index.ts because the current path creates noisy behavior in staging. It names the changed file and mentions a manual check, but rollback impact, edge-case tests, and reviewer risk are missing."
+  },
+  {
+    "mode": "code_review",
+    "label": "review",
+    "title": "Update rate limit bucket",
+    "text": "Update rate limit bucket updates middleware/rate-limit.ts because the current path creates noisy behavior in staging. It names the changed file and mentions a manual check, but rollback impact, edge-case tests, and reviewer risk are missing."
+  },
+  {
+    "mode": "code_review",
+    "label": "review",
+    "title": "Replace modal focus trap",
+    "text": "Replace modal focus trap updates apps/web/modal.tsx because the current path creates noisy behavior in staging. It names the changed file and mentions a manual check, but rollback impact, edge-case tests, and reviewer risk are missing."
+  },
+  {
+    "mode": "code_review",
+    "label": "review",
+    "title": "Expand report PDF fields",
+    "text": "Expand report PDF fields updates reports/pdf.ts because the current path creates noisy behavior in staging. It names the changed file and mentions a manual check, but rollback impact, edge-case tests, and reviewer risk are missing."
+  },
+  {
+    "mode": "code_review",
+    "label": "review",
+    "title": "Tune slop score threshold",
+    "text": "Tune slop score threshold updates packages/scoring/proof.ts because the current path creates noisy behavior in staging. It names the changed file and mentions a manual check, but rollback impact, edge-case tests, and reviewer risk are missing."
+  },
+  {
+    "mode": "code_review",
+    "label": "review",
+    "title": "Add queue worker shutdown hook",
+    "text": "Add queue worker shutdown hook updates workers/scan.ts because the current path creates noisy behavior in staging. It names the changed file and mentions a manual check, but rollback impact, edge-case tests, and reviewer risk are missing."
+  },
+  {
+    "mode": "code_review",
+    "label": "slop",
+    "title": "Comprehensive backend cleanup",
+    "text": "Comprehensive backend cleanup is a comprehensive update with various fixes, code cleanup, optimized performance, best practices, updated logic, refactored code, enhanced maintainability, improved overall quality, streamlined workflow, consistent behavior, and broad platform polish."
+  },
+  {
+    "mode": "code_review",
+    "label": "slop",
+    "title": "Optimize all workflows",
+    "text": "Optimize all workflows is a comprehensive update with various fixes, code cleanup, optimized performance, best practices, updated logic, refactored code, enhanced maintainability, improved overall quality, streamlined workflow, consistent behavior, and broad platform polish."
+  },
+  {
+    "mode": "code_review",
+    "label": "slop",
+    "title": "Improve security posture",
+    "text": "Improve security posture is a comprehensive update with various fixes, code cleanup, optimized performance, best practices, updated logic, refactored code, enhanced maintainability, improved overall quality, streamlined workflow, consistent behavior, and broad platform polish."
+  },
+  {
+    "mode": "code_review",
+    "label": "slop",
+    "title": "Refine UI logic",
+    "text": "Refine UI logic is a comprehensive update with various fixes, code cleanup, optimized performance, best practices, updated logic, refactored code, enhanced maintainability, improved overall quality, streamlined workflow, consistent behavior, and broad platform polish."
+  },
+  {
+    "mode": "code_review",
+    "label": "slop",
+    "title": "Update data layer",
+    "text": "Update data layer is a comprehensive update with various fixes, code cleanup, optimized performance, best practices, updated logic, refactored code, enhanced maintainability, improved overall quality, streamlined workflow, consistent behavior, and broad platform polish."
+  },
+  {
+    "mode": "code_review",
+    "label": "slop",
+    "title": "Address review feedback generally",
+    "text": "Address review feedback generally is a comprehensive update with various fixes, code cleanup, optimized performance, best practices, updated logic, refactored code, enhanced maintainability, improved overall quality, streamlined workflow, consistent behavior, and broad platform polish."
+  },
+  {
+    "mode": "code_review",
+    "label": "slop",
+    "title": "Make errors better",
+    "text": "Make errors better is a comprehensive update with various fixes, code cleanup, optimized performance, best practices, updated logic, refactored code, enhanced maintainability, improved overall quality, streamlined workflow, consistent behavior, and broad platform polish."
+  },
+  {
+    "mode": "code_review",
+    "label": "slop",
+    "title": "Modern platform update",
+    "text": "Modern platform update is a comprehensive update with various fixes, code cleanup, optimized performance, best practices, updated logic, refactored code, enhanced maintainability, improved overall quality, streamlined workflow, consistent behavior, and broad platform polish."
+  },
+  {
+    "mode": "code_review",
+    "label": "slop",
+    "title": "Polish admin tools",
+    "text": "Polish admin tools is a comprehensive update with various fixes, code cleanup, optimized performance, best practices, updated logic, refactored code, enhanced maintainability, improved overall quality, streamlined workflow, consistent behavior, and broad platform polish."
+  },
+  {
+    "mode": "code_review",
+    "label": "slop",
+    "title": "Improve API consistency",
+    "text": "Improve API consistency is a comprehensive update with various fixes, code cleanup, optimized performance, best practices, updated logic, refactored code, enhanced maintainability, improved overall quality, streamlined workflow, consistent behavior, and broad platform polish."
+  },
+  {
+    "mode": "docs",
+    "label": "clean",
+    "title": "Local Docker quickstart",
+    "text": "Local Docker quickstart gives a concrete example, then step one opens the project, step two runs docker compose up api web, and step three checks the expected output http://localhost:5173. The page includes config notes, failure result, and a sample response."
+  },
+  {
+    "mode": "docs",
+    "label": "clean",
+    "title": "Webhook signature example",
+    "text": "Webhook signature example gives a concrete example, then step one opens the project, step two runs curl -H x-prguard-signature, and step three checks the expected output 401 invalid signature. The page includes config notes, failure result, and a sample response."
+  },
+  {
+    "mode": "docs",
+    "label": "clean",
+    "title": "Mongo Atlas setup steps",
+    "text": "Mongo Atlas setup steps gives a concrete example, then step one opens the project, step two runs mongodb+srv URI, and step three checks the expected output Connected to MongoDB. The page includes config notes, failure result, and a sample response."
+  },
+  {
+    "mode": "docs",
+    "label": "clean",
+    "title": "CSV import guide",
+    "text": "CSV import guide gives a concrete example, then step one opens the project, step two runs npm run import -- sample.csv, and step three checks the expected output 24 rows imported. The page includes config notes, failure result, and a sample response."
+  },
+  {
+    "mode": "docs",
+    "label": "clean",
+    "title": "CI threshold docs",
+    "text": "CI threshold docs gives a concrete example, then step one opens the project, step two runs PRGUARD_THRESHOLD=43, and step three checks the expected output workflow fails above threshold. The page includes config notes, failure result, and a sample response."
+  },
+  {
+    "mode": "docs",
+    "label": "clean",
+    "title": "Report download workflow docs",
+    "text": "Report download workflow docs gives a concrete example, then step one opens the project, step two runs GET /api/reports/:id.pdf, and step three checks the expected output application/pdf response. The page includes config notes, failure result, and a sample response."
+  },
+  {
+    "mode": "docs",
+    "label": "clean",
+    "title": "Private repo scan setup",
+    "text": "Private repo scan setup gives a concrete example, then step one opens the project, step two runs repo scope token, and step three checks the expected output Pull requests loaded. The page includes config notes, failure result, and a sample response."
+  },
+  {
+    "mode": "docs",
+    "label": "clean",
+    "title": "Ollama local setup",
+    "text": "Ollama local setup gives a concrete example, then step one opens the project, step two runs ollama run llama3.1, and step three checks the expected output AI provider ollama ready. The page includes config notes, failure result, and a sample response."
+  },
+  {
+    "mode": "docs",
+    "label": "review",
+    "title": "Cloud deployment notes",
+    "text": "Cloud deployment notes introduces render.yaml and gives the reader a short setup path with one command. The page is useful as a draft, but expected output, error handling, and a complete example need more detail."
+  },
+  {
+    "mode": "docs",
+    "label": "review",
+    "title": "Token permissions guide",
+    "text": "Token permissions guide introduces repo token and gives the reader a short setup path with one command. The page is useful as a draft, but expected output, error handling, and a complete example need more detail."
+  },
+  {
+    "mode": "docs",
+    "label": "review",
+    "title": "Database backup page",
+    "text": "Database backup page introduces mongodump and gives the reader a short setup path with one command. The page is useful as a draft, but expected output, error handling, and a complete example need more detail."
+  },
+  {
+    "mode": "docs",
+    "label": "review",
+    "title": "AI provider setup",
+    "text": "AI provider setup introduces GEMINI_API_KEY and gives the reader a short setup path with one command. The page is useful as a draft, but expected output, error handling, and a complete example need more detail."
+  },
+  {
+    "mode": "docs",
+    "label": "review",
+    "title": "PDF export instructions",
+    "text": "PDF export instructions introduces Download button and gives the reader a short setup path with one command. The page is useful as a draft, but expected output, error handling, and a complete example need more detail."
+  },
+  {
+    "mode": "docs",
+    "label": "review",
+    "title": "Docker troubleshooting",
+    "text": "Docker troubleshooting introduces container logs and gives the reader a short setup path with one command. The page is useful as a draft, but expected output, error handling, and a complete example need more detail."
+  },
+  {
+    "mode": "docs",
+    "label": "review",
+    "title": "API pagination docs",
+    "text": "API pagination docs introduces page cursor and gives the reader a short setup path with one command. The page is useful as a draft, but expected output, error handling, and a complete example need more detail."
+  },
+  {
+    "mode": "docs",
+    "label": "review",
+    "title": "Resume upload docs",
+    "text": "Resume upload docs introduces text file upload and gives the reader a short setup path with one command. The page is useful as a draft, but expected output, error handling, and a complete example need more detail."
+  },
+  {
+    "mode": "docs",
+    "label": "review",
+    "title": "Webhook retry policy",
+    "text": "Webhook retry policy introduces retry queue and gives the reader a short setup path with one command. The page is useful as a draft, but expected output, error handling, and a complete example need more detail."
+  },
+  {
+    "mode": "docs",
+    "label": "review",
+    "title": "Scoring glossary",
+    "text": "Scoring glossary introduces hollow score and gives the reader a short setup path with one command. The page is useful as a draft, but expected output, error handling, and a complete example need more detail."
+  },
+  {
+    "mode": "docs",
+    "label": "review",
+    "title": "Frontend env setup",
+    "text": "Frontend env setup introduces VITE_API_URL and gives the reader a short setup path with one command. The page is useful as a draft, but expected output, error handling, and a complete example need more detail."
+  },
+  {
+    "mode": "docs",
+    "label": "review",
+    "title": "Scan limit docs",
+    "text": "Scan limit docs introduces PRGUARD_AI_SCAN_LIMIT and gives the reader a short setup path with one command. The page is useful as a draft, but expected output, error handling, and a complete example need more detail."
+  },
+  {
+    "mode": "docs",
+    "label": "slop",
+    "title": "Seamless onboarding overview",
+    "text": "Seamless onboarding overview is a comprehensive guide with seamless integration, robust solution language, enhance user experience promises, various fixes, streamlined workflow claims, broad flexibility, smooth support, comprehensive update framing, and helpful information for every situation."
+  },
+  {
+    "mode": "docs",
+    "label": "slop",
+    "title": "Robust API reference",
+    "text": "Robust API reference is a comprehensive guide with seamless integration, robust solution language, enhance user experience promises, various fixes, streamlined workflow claims, broad flexibility, smooth support, comprehensive update framing, and helpful information for every situation."
+  },
+  {
+    "mode": "docs",
+    "label": "slop",
+    "title": "Comprehensive deployment page",
+    "text": "Comprehensive deployment page is a comprehensive guide with seamless integration, robust solution language, enhance user experience promises, various fixes, streamlined workflow claims, broad flexibility, smooth support, comprehensive update framing, and helpful information for every situation."
+  },
+  {
+    "mode": "docs",
+    "label": "slop",
+    "title": "Helpful configuration guide",
+    "text": "Helpful configuration guide is a comprehensive guide with seamless integration, robust solution language, enhance user experience promises, various fixes, streamlined workflow claims, broad flexibility, smooth support, comprehensive update framing, and helpful information for every situation."
+  },
+  {
+    "mode": "docs",
+    "label": "slop",
+    "title": "User management docs",
+    "text": "User management docs is a comprehensive guide with seamless integration, robust solution language, enhance user experience promises, various fixes, streamlined workflow claims, broad flexibility, smooth support, comprehensive update framing, and helpful information for every situation."
+  },
+  {
+    "mode": "docs",
+    "label": "slop",
+    "title": "Security overview docs",
+    "text": "Security overview docs is a comprehensive guide with seamless integration, robust solution language, enhance user experience promises, various fixes, streamlined workflow claims, broad flexibility, smooth support, comprehensive update framing, and helpful information for every situation."
+  },
+  {
+    "mode": "docs",
+    "label": "slop",
+    "title": "Analytics guide",
+    "text": "Analytics guide is a comprehensive guide with seamless integration, robust solution language, enhance user experience promises, various fixes, streamlined workflow claims, broad flexibility, smooth support, comprehensive update framing, and helpful information for every situation."
+  },
+  {
+    "mode": "docs",
+    "label": "slop",
+    "title": "Integration setup overview",
+    "text": "Integration setup overview is a comprehensive guide with seamless integration, robust solution language, enhance user experience promises, various fixes, streamlined workflow claims, broad flexibility, smooth support, comprehensive update framing, and helpful information for every situation."
+  },
+  {
+    "mode": "docs",
+    "label": "slop",
+    "title": "Troubleshooting basics",
+    "text": "Troubleshooting basics is a comprehensive guide with seamless integration, robust solution language, enhance user experience promises, various fixes, streamlined workflow claims, broad flexibility, smooth support, comprehensive update framing, and helpful information for every situation."
+  },
+  {
+    "mode": "docs",
+    "label": "slop",
+    "title": "Feature guide intro",
+    "text": "Feature guide intro is a comprehensive guide with seamless integration, robust solution language, enhance user experience promises, various fixes, streamlined workflow claims, broad flexibility, smooth support, comprehensive update framing, and helpful information for every situation."
+  },
+  {
+    "mode": "hiring",
+    "label": "clean",
+    "title": "Payments engineer resume",
+    "text": "Payments engineer resume says I owned the Node and Postgres project, shipped the implementation in production, and reduced failed Stripe retries 18%. The resume links the GitHub or company case study, lists tools used, and explains my personal role."
+  },
+  {
+    "mode": "hiring",
+    "label": "clean",
+    "title": "Frontend accessibility project",
+    "text": "Frontend accessibility project says I owned the React dashboard project, shipped the implementation in production, and fixed 42 axe violations. The resume links the GitHub or company case study, lists tools used, and explains my personal role."
+  },
+  {
+    "mode": "hiring",
+    "label": "clean",
+    "title": "Streaming pipeline resume bullet",
+    "text": "Streaming pipeline resume bullet says I owned the Python Airflow project, shipped the implementation in production, and processed 3M events daily. The resume links the GitHub or company case study, lists tools used, and explains my personal role."
+  },
+  {
+    "mode": "hiring",
+    "label": "clean",
+    "title": "Open source auth contribution",
+    "text": "Open source auth contribution says I owned the OAuth service project, shipped the implementation in production, and merged GitHub PR #184. The resume links the GitHub or company case study, lists tools used, and explains my personal role."
+  },
+  {
+    "mode": "hiring",
+    "label": "clean",
+    "title": "Take-home design explanation",
+    "text": "Take-home design explanation says I owned the evaluation script project, shipped the implementation in production, and benchmarked 240 examples. The resume links the GitHub or company case study, lists tools used, and explains my personal role."
+  },
+  {
+    "mode": "hiring",
+    "label": "clean",
+    "title": "Support tooling impact",
+    "text": "Support tooling impact says I owned the admin dashboard project, shipped the implementation in production, and cut response time 31%. The resume links the GitHub or company case study, lists tools used, and explains my personal role."
+  },
+  {
+    "mode": "hiring",
+    "label": "clean",
+    "title": "Mobile release ownership",
+    "text": "Mobile release ownership says I owned the React Native project, shipped the implementation in production, and shipped 6 releases. The resume links the GitHub or company case study, lists tools used, and explains my personal role."
+  },
+  {
+    "mode": "hiring",
+    "label": "clean",
+    "title": "ML evaluation project",
+    "text": "ML evaluation project says I owned the model dashboard project, shipped the implementation in production, and raised recall from 0.71 to 0.82. The resume links the GitHub or company case study, lists tools used, and explains my personal role."
+  },
+  {
+    "mode": "hiring",
+    "label": "review",
+    "title": "Backend API resume line",
+    "text": "Backend API resume line describes work on Node API and includes one concrete tool from the candidate history. The claim may be real, but missing measurable outcome, missing project link, and missing personal ownership proof need review."
+  },
+  {
+    "mode": "hiring",
+    "label": "review",
+    "title": "Leadership summary",
+    "text": "Leadership summary describes work on team delivery and includes one concrete tool from the candidate history. The claim may be real, but missing measurable outcome, missing project link, and missing personal ownership proof need review."
+  },
+  {
+    "mode": "hiring",
+    "label": "review",
+    "title": "Data analyst bullet",
+    "text": "Data analyst bullet describes work on SQL dashboard and includes one concrete tool from the candidate history. The claim may be real, but missing measurable outcome, missing project link, and missing personal ownership proof need review."
+  },
+  {
+    "mode": "hiring",
+    "label": "review",
+    "title": "AI feature project",
+    "text": "AI feature project describes work on LLM assistant and includes one concrete tool from the candidate history. The claim may be real, but missing measurable outcome, missing project link, and missing personal ownership proof need review."
+  },
+  {
+    "mode": "hiring",
+    "label": "review",
+    "title": "DevOps resume bullet",
+    "text": "DevOps resume bullet describes work on AWS pipeline and includes one concrete tool from the candidate history. The claim may be real, but missing measurable outcome, missing project link, and missing personal ownership proof need review."
+  },
+  {
+    "mode": "hiring",
+    "label": "review",
+    "title": "Internship project summary",
+    "text": "Internship project summary describes work on React app and includes one concrete tool from the candidate history. The claim may be real, but missing measurable outcome, missing project link, and missing personal ownership proof need review."
+  },
+  {
+    "mode": "hiring",
+    "label": "review",
+    "title": "Security claim resume",
+    "text": "Security claim resume describes work on auth review and includes one concrete tool from the candidate history. The claim may be real, but missing measurable outcome, missing project link, and missing personal ownership proof need review."
+  },
+  {
+    "mode": "hiring",
+    "label": "review",
+    "title": "Product manager impact",
+    "text": "Product manager impact describes work on launch metrics and includes one concrete tool from the candidate history. The claim may be real, but missing measurable outcome, missing project link, and missing personal ownership proof need review."
+  },
+  {
+    "mode": "hiring",
+    "label": "review",
+    "title": "Freelance portfolio note",
+    "text": "Freelance portfolio note describes work on client site and includes one concrete tool from the candidate history. The claim may be real, but missing measurable outcome, missing project link, and missing personal ownership proof need review."
+  },
+  {
+    "mode": "hiring",
+    "label": "review",
+    "title": "Database migration experience",
+    "text": "Database migration experience describes work on Postgres migration and includes one concrete tool from the candidate history. The claim may be real, but missing measurable outcome, missing project link, and missing personal ownership proof need review."
+  },
+  {
+    "mode": "hiring",
+    "label": "review",
+    "title": "QA automation resume",
+    "text": "QA automation resume describes work on Playwright tests and includes one concrete tool from the candidate history. The claim may be real, but missing measurable outcome, missing project link, and missing personal ownership proof need review."
+  },
+  {
+    "mode": "hiring",
+    "label": "review",
+    "title": "Customer success project",
+    "text": "Customer success project describes work on support workflow and includes one concrete tool from the candidate history. The claim may be real, but missing measurable outcome, missing project link, and missing personal ownership proof need review."
+  },
+  {
+    "mode": "hiring",
+    "label": "slop",
+    "title": "Dynamic engineer summary",
+    "text": "Dynamic engineer summary presents a results-driven, passionate, dynamic, hard-working team player with a proven track record, strong ownership, excellent communication, broad technical ability, strategic mindset, and consistent delivery excellence."
+  },
+  {
+    "mode": "hiring",
+    "label": "slop",
+    "title": "Strategic leader profile",
+    "text": "Strategic leader profile presents a results-driven, passionate, dynamic, hard-working team player with a proven track record, strong ownership, excellent communication, broad technical ability, strategic mindset, and consistent delivery excellence."
+  },
+  {
+    "mode": "hiring",
+    "label": "slop",
+    "title": "Full-stack excellence claim",
+    "text": "Full-stack excellence claim presents a results-driven, passionate, dynamic, hard-working team player with a proven track record, strong ownership, excellent communication, broad technical ability, strategic mindset, and consistent delivery excellence."
+  },
+  {
+    "mode": "hiring",
+    "label": "slop",
+    "title": "Data-driven impact statement",
+    "text": "Data-driven impact statement presents a results-driven, passionate, dynamic, hard-working team player with a proven track record, strong ownership, excellent communication, broad technical ability, strategic mindset, and consistent delivery excellence."
+  },
+  {
+    "mode": "hiring",
+    "label": "slop",
+    "title": "AI innovation resume",
+    "text": "AI innovation resume presents a results-driven, passionate, dynamic, hard-working team player with a proven track record, strong ownership, excellent communication, broad technical ability, strategic mindset, and consistent delivery excellence."
+  },
+  {
+    "mode": "hiring",
+    "label": "slop",
+    "title": "Collaborative team player",
+    "text": "Collaborative team player presents a results-driven, passionate, dynamic, hard-working team player with a proven track record, strong ownership, excellent communication, broad technical ability, strategic mindset, and consistent delivery excellence."
+  },
+  {
+    "mode": "hiring",
+    "label": "slop",
+    "title": "Startup builder claim",
+    "text": "Startup builder claim presents a results-driven, passionate, dynamic, hard-working team player with a proven track record, strong ownership, excellent communication, broad technical ability, strategic mindset, and consistent delivery excellence."
+  },
+  {
+    "mode": "hiring",
+    "label": "slop",
+    "title": "Cloud expert statement",
+    "text": "Cloud expert statement presents a results-driven, passionate, dynamic, hard-working team player with a proven track record, strong ownership, excellent communication, broad technical ability, strategic mindset, and consistent delivery excellence."
+  },
+  {
+    "mode": "hiring",
+    "label": "slop",
+    "title": "Operational excellence profile",
+    "text": "Operational excellence profile presents a results-driven, passionate, dynamic, hard-working team player with a proven track record, strong ownership, excellent communication, broad technical ability, strategic mindset, and consistent delivery excellence."
+  },
+  {
+    "mode": "hiring",
+    "label": "slop",
+    "title": "Generic portfolio intro",
+    "text": "Generic portfolio intro presents a results-driven, passionate, dynamic, hard-working team player with a proven track record, strong ownership, excellent communication, broad technical ability, strategic mindset, and consistent delivery excellence."
+  },
+  {
+    "mode": "communications",
+    "label": "clean",
+    "title": "Release rollback owner",
+    "text": "Release rollback owner: decision is to proceed with the smaller release. @Nina owns rollback validation, deadline is today 4 PM, and next action is posting the update after the final review. Please confirm approval in this thread."
+  },
+  {
+    "mode": "communications",
+    "label": "clean",
+    "title": "Incident customer update",
+    "text": "Incident customer update: decision is to proceed with the smaller release. I will send customer notice, deadline is by Friday, and next action is posting the update after the final review. Please confirm approval in this thread."
+  },
+  {
+    "mode": "communications",
+    "label": "clean",
+    "title": "Design decision message",
+    "text": "Design decision message: decision is to proceed with the smaller release. decided option B, deadline is tomorrow 10 AM, and next action is posting the update after the final review. Please confirm approval in this thread."
+  },
+  {
+    "mode": "communications",
+    "label": "clean",
+    "title": "Blocked API access note",
+    "text": "Blocked API access note: decision is to proceed with the smaller release. @Arun owns token reset, deadline is EOD today, and next action is posting the update after the final review. Please confirm approval in this thread."
+  },
+  {
+    "mode": "communications",
+    "label": "clean",
+    "title": "QA handoff message",
+    "text": "QA handoff message: decision is to proceed with the smaller release. @Mira will review checkout tests, deadline is before release, and next action is posting the update after the final review. Please confirm approval in this thread."
+  },
+  {
+    "mode": "communications",
+    "label": "clean",
+    "title": "Meeting action summary",
+    "text": "Meeting action summary: decision is to proceed with the smaller release. Sam owns pricing copy, deadline is by Thursday, and next action is posting the update after the final review. Please confirm approval in this thread."
+  },
+  {
+    "mode": "communications",
+    "label": "clean",
+    "title": "Data fix approval ask",
+    "text": "Data fix approval ask: decision is to proceed with the smaller release. approve customer merge patch, deadline is today noon, and next action is posting the update after the final review. Please confirm approval in this thread."
+  },
+  {
+    "mode": "communications",
+    "label": "clean",
+    "title": "Hiring panel schedule",
+    "text": "Hiring panel schedule: decision is to proceed with the smaller release. I will schedule panel loop, deadline is Monday 3 PM, and next action is posting the update after the final review. Please confirm approval in this thread."
+  },
+  {
+    "mode": "communications",
+    "label": "review",
+    "title": "Migration status update",
+    "text": "Migration status update mentions migration window and gives partial context for the team. The message has a next step, but owner, deadline, decision record, and exact ask are still unclear."
+  },
+  {
+    "mode": "communications",
+    "label": "review",
+    "title": "Customer escalation note",
+    "text": "Customer escalation note mentions enterprise issue and gives partial context for the team. The message has a next step, but owner, deadline, decision record, and exact ask are still unclear."
+  },
+  {
+    "mode": "communications",
+    "label": "review",
+    "title": "Release readiness message",
+    "text": "Release readiness message mentions release checklist and gives partial context for the team. The message has a next step, but owner, deadline, decision record, and exact ask are still unclear."
+  },
+  {
+    "mode": "communications",
+    "label": "review",
+    "title": "Design feedback thread",
+    "text": "Design feedback thread mentions settings page and gives partial context for the team. The message has a next step, but owner, deadline, decision record, and exact ask are still unclear."
+  },
+  {
+    "mode": "communications",
+    "label": "review",
+    "title": "Vendor access follow-up",
+    "text": "Vendor access follow-up mentions security portal and gives partial context for the team. The message has a next step, but owner, deadline, decision record, and exact ask are still unclear."
+  },
+  {
+    "mode": "communications",
+    "label": "review",
+    "title": "Bug triage note",
+    "text": "Bug triage note mentions checkout bug and gives partial context for the team. The message has a next step, but owner, deadline, decision record, and exact ask are still unclear."
+  },
+  {
+    "mode": "communications",
+    "label": "review",
+    "title": "Docs review request",
+    "text": "Docs review request mentions setup guide and gives partial context for the team. The message has a next step, but owner, deadline, decision record, and exact ask are still unclear."
+  },
+  {
+    "mode": "communications",
+    "label": "review",
+    "title": "Analytics question",
+    "text": "Analytics question mentions dashboard metric and gives partial context for the team. The message has a next step, but owner, deadline, decision record, and exact ask are still unclear."
+  },
+  {
+    "mode": "communications",
+    "label": "review",
+    "title": "Hiring decision note",
+    "text": "Hiring decision note mentions candidate packet and gives partial context for the team. The message has a next step, but owner, deadline, decision record, and exact ask are still unclear."
+  },
+  {
+    "mode": "communications",
+    "label": "review",
+    "title": "Security review request",
+    "text": "Security review request mentions token change and gives partial context for the team. The message has a next step, but owner, deadline, decision record, and exact ask are still unclear."
+  },
+  {
+    "mode": "communications",
+    "label": "review",
+    "title": "Sprint planning summary",
+    "text": "Sprint planning summary mentions sprint board and gives partial context for the team. The message has a next step, but owner, deadline, decision record, and exact ask are still unclear."
+  },
+  {
+    "mode": "communications",
+    "label": "review",
+    "title": "Deployment timing message",
+    "text": "Deployment timing message mentions deploy window and gives partial context for the team. The message has a next step, but owner, deadline, decision record, and exact ask are still unclear."
+  },
+  {
+    "mode": "communications",
+    "label": "slop",
+    "title": "Aligned strategy message",
+    "text": "Aligned strategy message helps everyone align, circle back, leverage the discussion, streamline moving forward, touch base on priorities, create synergy, improve collaboration, maintain momentum, and ensure positive progress across the team."
+  },
+  {
+    "mode": "communications",
+    "label": "slop",
+    "title": "Circle back update",
+    "text": "Circle back update helps everyone align, circle back, leverage the discussion, streamline moving forward, touch base on priorities, create synergy, improve collaboration, maintain momentum, and ensure positive progress across the team."
+  },
+  {
+    "mode": "communications",
+    "label": "slop",
+    "title": "Vague blocker note",
+    "text": "Vague blocker note helps everyone align, circle back, leverage the discussion, streamline moving forward, touch base on priorities, create synergy, improve collaboration, maintain momentum, and ensure positive progress across the team."
+  },
+  {
+    "mode": "communications",
+    "label": "slop",
+    "title": "General customer concern",
+    "text": "General customer concern helps everyone align, circle back, leverage the discussion, streamline moving forward, touch base on priorities, create synergy, improve collaboration, maintain momentum, and ensure positive progress across the team."
+  },
+  {
+    "mode": "communications",
+    "label": "slop",
+    "title": "Optimistic launch message",
+    "text": "Optimistic launch message helps everyone align, circle back, leverage the discussion, streamline moving forward, touch base on priorities, create synergy, improve collaboration, maintain momentum, and ensure positive progress across the team."
+  },
+  {
+    "mode": "communications",
+    "label": "slop",
+    "title": "Leadership alignment note",
+    "text": "Leadership alignment note helps everyone align, circle back, leverage the discussion, streamline moving forward, touch base on priorities, create synergy, improve collaboration, maintain momentum, and ensure positive progress across the team."
+  },
+  {
+    "mode": "communications",
+    "label": "slop",
+    "title": "Generic status update",
+    "text": "Generic status update helps everyone align, circle back, leverage the discussion, streamline moving forward, touch base on priorities, create synergy, improve collaboration, maintain momentum, and ensure positive progress across the team."
+  },
+  {
+    "mode": "communications",
+    "label": "slop",
+    "title": "Process improvement message",
+    "text": "Process improvement message helps everyone align, circle back, leverage the discussion, streamline moving forward, touch base on priorities, create synergy, improve collaboration, maintain momentum, and ensure positive progress across the team."
+  },
+  {
+    "mode": "communications",
+    "label": "slop",
+    "title": "Unclear approval request",
+    "text": "Unclear approval request helps everyone align, circle back, leverage the discussion, streamline moving forward, touch base on priorities, create synergy, improve collaboration, maintain momentum, and ensure positive progress across the team."
+  },
+  {
+    "mode": "communications",
+    "label": "slop",
+    "title": "Ambiguous next steps",
+    "text": "Ambiguous next steps helps everyone align, circle back, leverage the discussion, streamline moving forward, touch base on priorities, create synergy, improve collaboration, maintain momentum, and ensure positive progress across the team."
   }
 ]

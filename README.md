@@ -128,8 +128,8 @@ The current evaluation dataset lives in `docs/evaluation-dataset.json` and repor
 Current local baseline:
 
 ```text
-Examples: 120
-Accuracy: 0.76
+Examples: 240
+Accuracy: 0.88
 False positive rate: 0.00
 False negative rate: 0.00
 ```
