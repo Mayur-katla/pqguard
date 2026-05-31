@@ -1,0 +1,335 @@
+{
+  "dataset": {
+    "total": 120,
+    "byTrack": {
+      "code_review": 30,
+      "docs": 30,
+      "hiring": 30,
+      "communications": 30
+    },
+    "byLabel": {
+      "clean": 48,
+      "review": 32,
+      "slop": 40
+    }
+  },
+  "results": {
+    "correct": 91,
+    "incorrect": 29,
+    "accuracy": 0.76,
+    "falsePositiveRate": 0,
+    "falseNegativeRate": 0
+  },
+  "confusionMatrix": {
+    "clean": {
+      "clean": 36,
+      "review": 12,
+      "slop": 0
+    },
+    "review": {
+      "clean": 0,
+      "review": 29,
+      "slop": 3
+    },
+    "slop": {
+      "clean": 0,
+      "review": 14,
+      "slop": 26
+    }
+  },
+  "perTrackAccuracy": {
+    "code_review": 0.83,
+    "docs": 0.7,
+    "hiring": 0.77,
+    "communications": 0.73
+  },
+  "perLabelAccuracy": {
+    "clean": 0.75,
+    "review": 0.91,
+    "slop": 0.65
+  },
+  "scoreAveragesByLabel": {
+    "clean": {
+      "proofScore": 52.6,
+      "hollowScore": 22.3,
+      "failedChecks": 0.9,
+      "claims": 1
+    },
+    "review": {
+      "proofScore": 52.2,
+      "hollowScore": 22,
+      "failedChecks": 1.5,
+      "claims": 0.5
+    },
+    "slop": {
+      "proofScore": 42.2,
+      "hollowScore": 33,
+      "failedChecks": 2.6,
+      "claims": 0.7
+    }
+  },
+  "misclassified": [
+    {
+      "title": "Validate expired token in refresh flow",
+      "mode": "code_review",
+      "actual": "clean",
+      "predicted": "review",
+      "proofScore": 42,
+      "hollowScore": 23,
+      "failedChecks": 1
+    },
+    {
+      "title": "Setup guide",
+      "mode": "docs",
+      "actual": "slop",
+      "predicted": "review",
+      "proofScore": 46,
+      "hollowScore": 25,
+      "failedChecks": 3
+    },
+    {
+      "title": "Cover letter",
+      "mode": "hiring",
+      "actual": "slop",
+      "predicted": "review",
+      "proofScore": 40,
+      "hollowScore": 24,
+      "failedChecks": 3
+    },
+    {
+      "title": "Resume summary",
+      "mode": "hiring",
+      "actual": "slop",
+      "predicted": "review",
+      "proofScore": 43,
+      "hollowScore": 23,
+      "failedChecks": 3
+    },
+    {
+      "title": "Email",
+      "mode": "communications",
+      "actual": "slop",
+      "predicted": "review",
+      "proofScore": 58,
+      "hollowScore": 23,
+      "failedChecks": 2
+    },
+    {
+      "title": "Platform overview",
+      "mode": "docs",
+      "actual": "slop",
+      "predicted": "review",
+      "proofScore": 53,
+      "hollowScore": 22,
+      "failedChecks": 1
+    },
+    {
+      "title": "Configuration docs",
+      "mode": "docs",
+      "actual": "slop",
+      "predicted": "review",
+      "proofScore": 44,
+      "hollowScore": 26,
+      "failedChecks": 2
+    },
+    {
+      "title": "Data resume bullet",
+      "mode": "hiring",
+      "actual": "clean",
+      "predicted": "review",
+      "proofScore": 43,
+      "hollowScore": 22,
+      "failedChecks": 2
+    },
+    {
+      "title": "Incident assignment",
+      "mode": "communications",
+      "actual": "clean",
+      "predicted": "review",
+      "proofScore": 37,
+      "hollowScore": 23,
+      "failedChecks": 1
+    },
+    {
+      "title": "Meeting summary",
+      "mode": "communications",
+      "actual": "slop",
+      "predicted": "review",
+      "proofScore": 59,
+      "hollowScore": 24,
+      "failedChecks": 2
+    },
+    {
+      "title": "Review ask",
+      "mode": "communications",
+      "actual": "clean",
+      "predicted": "review",
+      "proofScore": 42,
+      "hollowScore": 24,
+      "failedChecks": 0
+    },
+    {
+      "title": "Team sync",
+      "mode": "communications",
+      "actual": "slop",
+      "predicted": "review",
+      "proofScore": 58,
+      "hollowScore": 24,
+      "failedChecks": 2
+    },
+    {
+      "title": "Guard empty invite token",
+      "mode": "code_review",
+      "actual": "clean",
+      "predicted": "review",
+      "proofScore": 67,
+      "hollowScore": 21,
+      "failedChecks": 0
+    },
+    {
+      "title": "Tighten admin role migration",
+      "mode": "code_review",
+      "actual": "clean",
+      "predicted": "review",
+      "proofScore": 65,
+      "hollowScore": 19,
+      "failedChecks": 0
+    },
+    {
+      "title": "Update analytics event names",
+      "mode": "code_review",
+      "actual": "review",
+      "predicted": "slop",
+      "proofScore": 36,
+      "hollowScore": 23,
+      "failedChecks": 4
+    },
+    {
+      "title": "General fixes",
+      "mode": "code_review",
+      "actual": "slop",
+      "predicted": "review",
+      "proofScore": 31,
+      "hollowScore": 25,
+      "failedChecks": 3
+    },
+    {
+      "title": "Webhook signature verification docs",
+      "mode": "docs",
+      "actual": "clean",
+      "predicted": "review",
+      "proofScore": 43,
+      "hollowScore": 24,
+      "failedChecks": 2
+    },
+    {
+      "title": "GitHub token setup docs",
+      "mode": "docs",
+      "actual": "clean",
+      "predicted": "review",
+      "proofScore": 31,
+      "hollowScore": 19,
+      "failedChecks": 2
+    },
+    {
+      "title": "MongoDB Atlas setup docs",
+      "mode": "docs",
+      "actual": "clean",
+      "predicted": "review",
+      "proofScore": 40,
+      "hollowScore": 18,
+      "failedChecks": 1
+    },
+    {
+      "title": "Redis cache guide",
+      "mode": "docs",
+      "actual": "review",
+      "predicted": "slop",
+      "proofScore": 30,
+      "hollowScore": 18,
+      "failedChecks": 3
+    },
+    {
+      "title": "Platform overview docs",
+      "mode": "docs",
+      "actual": "slop",
+      "predicted": "review",
+      "proofScore": 48,
+      "hollowScore": 24,
+      "failedChecks": 3
+    },
+    {
+      "title": "Generic deployment guide",
+      "mode": "docs",
+      "actual": "slop",
+      "predicted": "review",
+      "proofScore": 37,
+      "hollowScore": 25,
+      "failedChecks": 3
+    },
+    {
+      "title": "Take-home explanation with tradeoff",
+      "mode": "hiring",
+      "actual": "clean",
+      "predicted": "review",
+      "proofScore": 36,
+      "hollowScore": 19,
+      "failedChecks": 3
+    },
+    {
+      "title": "Open source maintainer evidence",
+      "mode": "hiring",
+      "actual": "clean",
+      "predicted": "review",
+      "proofScore": 41,
+      "hollowScore": 22,
+      "failedChecks": 1
+    },
+    {
+      "title": "AI project summary",
+      "mode": "hiring",
+      "actual": "review",
+      "predicted": "slop",
+      "proofScore": 29,
+      "hollowScore": 24,
+      "failedChecks": 3
+    },
+    {
+      "title": "Unsupported leadership claim",
+      "mode": "hiring",
+      "actual": "slop",
+      "predicted": "review",
+      "proofScore": 45,
+      "hollowScore": 21,
+      "failedChecks": 2
+    },
+    {
+      "title": "Blocked task escalation",
+      "mode": "communications",
+      "actual": "clean",
+      "predicted": "review",
+      "proofScore": 48,
+      "hollowScore": 23,
+      "failedChecks": 1
+    },
+    {
+      "title": "No-owner status note",
+      "mode": "communications",
+      "actual": "slop",
+      "predicted": "review",
+      "proofScore": 52,
+      "hollowScore": 25,
+      "failedChecks": 3
+    },
+    {
+      "title": "Vague decision summary",
+      "mode": "communications",
+      "actual": "slop",
+      "predicted": "review",
+      "proofScore": 50,
+      "hollowScore": 27,
+      "failedChecks": 3
+    }
+  ],
+  "warnings": []
+}

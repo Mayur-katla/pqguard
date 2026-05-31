@@ -1,0 +1,722 @@
+[
+  {
+    "mode": "code_review",
+    "label": "slop",
+    "title": "Improve code",
+    "text": "This comprehensive update improves overall quality and follows best practices with various fixes, but it names no files, tests, risks, or user-visible behavior."
+  },
+  {
+    "mode": "code_review",
+    "label": "clean",
+    "title": "Validate expired token in refresh flow",
+    "text": "Adds a 401 guard in src/auth/session.ts when the bearer token is missing. Verified with auth/session.test.ts using the missing bearer token regression case."
+  },
+  {
+    "mode": "code_review",
+    "label": "review",
+    "title": "Update checkout handler",
+    "text": "Updates checkout handler and payment request mapping. Manual testing completed in staging, but rollback behavior, payment risk, and automated verification are not described."
+  },
+  {
+    "mode": "code_review",
+    "label": "slop",
+    "title": "Refactor stuff",
+    "text": "Refactored code and optimized performance to ensure consistency and better maintainability, but the description provides no files, measurements, tests, or behavior changes."
+  },
+  {
+    "mode": "code_review",
+    "label": "clean",
+    "title": "Add migration retry test",
+    "text": "Adds retry handling for transient migration lock errors and covers the timeout branch in migration-runner.spec.ts with a deterministic lock timeout fixture."
+  },
+  {
+    "mode": "docs",
+    "label": "slop",
+    "title": "Setup guide",
+    "text": "Setup is simple and seamless. This section explains setup so teams can set things up and use it as needed, but gives no commands, versions, or expected output."
+  },
+  {
+    "mode": "docs",
+    "label": "clean",
+    "title": "API quickstart",
+    "text": "Run npm install, copy .env.example to .env, then run npm start. Expected output: API listening on port 4100. Example curl: curl localhost:4100/api/health."
+  },
+  {
+    "mode": "docs",
+    "label": "review",
+    "title": "Deployment guide",
+    "text": "Deploy the service to Railway and configure environment variables. Missing expected output, health-check command, rollback steps, and which service owns each variable."
+  },
+  {
+    "mode": "docs",
+    "label": "slop",
+    "title": "User guide",
+    "text": "The platform provides a robust workflow for users to leverage comprehensive functionality in a seamless way, but gives no concrete task, example, or result."
+  },
+  {
+    "mode": "docs",
+    "label": "clean",
+    "title": "Webhook docs",
+    "text": "Create a webhook with POST /api/hooks. Example payload includes repository, pull_request, and action. A 200 response returns { ok: true }."
+  },
+  {
+    "mode": "hiring",
+    "label": "slop",
+    "title": "Cover letter",
+    "text": "I am a results-driven team player with a proven track record of delivering dynamic solutions and improving business outcomes, but I provide no project, metric, or tool evidence."
+  },
+  {
+    "mode": "hiring",
+    "label": "clean",
+    "title": "Resume bullet",
+    "text": "Built a Node.js billing reconciliation service that reduced manual review time by 38% for a 12-person finance team processing weekly invoice exceptions."
+  },
+  {
+    "mode": "hiring",
+    "label": "review",
+    "title": "Take-home summary",
+    "text": "Implemented the dashboard in React and added filters. Needs links, tests, performance details, user count, and which dashboard panels were personally owned."
+  },
+  {
+    "mode": "hiring",
+    "label": "slop",
+    "title": "Resume summary",
+    "text": "Passionate engineer skilled in leadership, collaboration, innovation, and delivering scalable high-impact solutions, but no specific project, metric, scope, or tool is provided."
+  },
+  {
+    "mode": "hiring",
+    "label": "clean",
+    "title": "Project evidence",
+    "text": "Created a Python ETL pipeline processing 1.2M rows/day and published the source at github.com/example/recon-pipeline with validation queries and retry logs."
+  },
+  {
+    "mode": "communications",
+    "label": "slop",
+    "title": "Slack update",
+    "text": "Moving forward, we should align on strategic direction and circle back to leverage synergies across the workflow, but no owner, ask, deadline, or decision is stated."
+  },
+  {
+    "mode": "communications",
+    "label": "clean",
+    "title": "Release ask",
+    "text": "Maya owns the release checklist. Please review the payment rollback item by 4 PM today so we can ship tomorrow."
+  },
+  {
+    "mode": "communications",
+    "label": "review",
+    "title": "Meeting note",
+    "text": "We discussed the migration and agreed to follow up next week. Owner, exact deadline, rollback decision, and validation checklist are missing."
+  },
+  {
+    "mode": "communications",
+    "label": "slop",
+    "title": "Email",
+    "text": "We need to streamline our collaborative efforts and ensure alignment around the holistic initiative, but there is no decision, owner, customer impact, or next action."
+  },
+  {
+    "mode": "communications",
+    "label": "clean",
+    "title": "Incident update",
+    "text": "Ravi will patch the cache timeout by EOD. Priya will verify the 500-rate dashboard after deploy and post results in #incident."
+  },
+  {
+    "mode": "code_review",
+    "label": "clean",
+    "title": "Add password reset rate-limit test",
+    "text": "Adds a rate-limit guard to src/auth/password-reset.ts and verifies the 429 path in password-reset.spec.ts with a 10-request window and reset timer."
+  },
+  {
+    "mode": "code_review",
+    "label": "clean",
+    "title": "Fix invoice rounding regression",
+    "text": "Fixes rounding in billing/invoice.ts from floor to banker rounding and adds invoice-rounding.test.ts for USD and EUR totals using invoice fixture INV-204."
+  },
+  {
+    "mode": "code_review",
+    "label": "review",
+    "title": "Update cache timeout",
+    "text": "Changes cache timeout defaults for API responses. Needs production latency data, affected endpoint list, cache invalidation reasoning, and rollback details before approval."
+  },
+  {
+    "mode": "code_review",
+    "label": "review",
+    "title": "Refactor user settings page",
+    "text": "Moves settings form into smaller components and manually tested profile updates. Missing automated tests for notification preferences, validation errors, and save failure state."
+  },
+  {
+    "mode": "code_review",
+    "label": "slop",
+    "title": "Optimize service",
+    "text": "This improves performance and streamlines the service with robust best practices and comprehensive cleanup, but gives no benchmark, endpoint, file, or test evidence."
+  },
+  {
+    "mode": "code_review",
+    "label": "slop",
+    "title": "Address feedback",
+    "text": "Addressed feedback and made changes to ensure consistency across the codebase, but does not name the feedback, changed files, tests, or remaining risks."
+  },
+  {
+    "mode": "code_review",
+    "label": "clean",
+    "title": "Add migration rollback guard",
+    "text": "Adds rollback guard for failed user_status migration and documents the fallback path in db/migrations/README.md. Verified up and down on a staging snapshot."
+  },
+  {
+    "mode": "code_review",
+    "label": "review",
+    "title": "Adjust auth middleware",
+    "text": "Adjusts auth middleware for new session claims. Missing security impact notes, token expiry test evidence, affected routes, and rollback instructions."
+  },
+  {
+    "mode": "code_review",
+    "label": "slop",
+    "title": "Code cleanup",
+    "text": "Minor improvements, code cleanup, and optimized performance for better maintainability, but no changed files, benchmarks, tests, or reviewer risks are identified."
+  },
+  {
+    "mode": "code_review",
+    "label": "clean",
+    "title": "Handle GitHub 403 rate limit",
+    "text": "Adds explicit GitHub 403 rate-limit handling in github.ts and covers the error message in github.test.ts using an exhausted-rate-limit fixture and retry-after header."
+  },
+  {
+    "mode": "docs",
+    "label": "clean",
+    "title": "CLI install guide",
+    "text": "Install with npm i -g prguard. Run prguard scan owner/repo. Expected output: JSON with hollowScore and proofScore fields plus repository metadata."
+  },
+  {
+    "mode": "docs",
+    "label": "clean",
+    "title": "Docker quickstart",
+    "text": "Step 1: copy .env.example. Step 2: run docker compose up --build. Expected output: frontend on 5173 and API health on 4100."
+  },
+  {
+    "mode": "docs",
+    "label": "review",
+    "title": "OAuth setup notes",
+    "text": "Create a GitHub OAuth app and configure callback URLs. Missing exact callback example, required scopes, token storage note, and expected success response."
+  },
+  {
+    "mode": "docs",
+    "label": "review",
+    "title": "Webhook retry docs",
+    "text": "Retries happen after delivery failures. Needs timing table, payload example, dead-letter behavior, maximum attempt count, and expected delivery log output."
+  },
+  {
+    "mode": "docs",
+    "label": "slop",
+    "title": "Platform overview",
+    "text": "Our comprehensive platform provides seamless capabilities that empower teams to maximize outcomes across workflows, but includes no setup steps, examples, commands, or expected outputs."
+  },
+  {
+    "mode": "docs",
+    "label": "slop",
+    "title": "Configuration docs",
+    "text": "Configuration is flexible and robust. This configuration guide explains configuration options for configuring things, but names no variable, type, default, or example value."
+  },
+  {
+    "mode": "docs",
+    "label": "clean",
+    "title": "Report export docs",
+    "text": "Click Export, choose CSV, and the browser downloads prguard-owner-repo.csv. Expected columns include number, title, author, hollow score, proof score, proof band, summary, repository, and created at timestamp."
+  },
+  {
+    "mode": "docs",
+    "label": "review",
+    "title": "Production deploy guide",
+    "text": "Deploy the backend and frontend separately. Missing environment variable table, health-check command, rollback process, smoke-test URL, and expected deployment log output."
+  },
+  {
+    "mode": "docs",
+    "label": "slop",
+    "title": "API docs",
+    "text": "The API is easy to use and follows best practices for a robust developer experience, but lists no endpoint, method, request body, or response."
+  },
+  {
+    "mode": "docs",
+    "label": "clean",
+    "title": "Health check docs",
+    "text": "Call GET /api/health. A healthy response returns { ok: true, name: 'PRGuard API' }. Use this before running scans and deployments."
+  },
+  {
+    "mode": "hiring",
+    "label": "clean",
+    "title": "Backend resume bullet",
+    "text": "Implemented a Go queue worker that processed 2M jobs/day and reduced retry backlog by 47% at Acme Payments after queue partitioning."
+  },
+  {
+    "mode": "hiring",
+    "label": "clean",
+    "title": "Frontend project bullet",
+    "text": "Built a React analytics dashboard used by 18 support agents and cut weekly triage time from 6 hours to 2 hours."
+  },
+  {
+    "mode": "hiring",
+    "label": "review",
+    "title": "Portfolio summary",
+    "text": "Built several full-stack projects with React and Node. Needs links, user metrics, deployment status, and what parts were personally owned."
+  },
+  {
+    "mode": "hiring",
+    "label": "review",
+    "title": "Take-home readme",
+    "text": "Implemented authentication and data fetching. Missing tests, deployment link, security assumptions, architecture tradeoffs, explanation of session storage, and failure handling."
+  },
+  {
+    "mode": "hiring",
+    "label": "slop",
+    "title": "Generic summary",
+    "text": "Dynamic professional with strong communication skills, leadership mindset, and passion for innovative scalable solutions, but no role, project, metric, or artifact evidence."
+  },
+  {
+    "mode": "hiring",
+    "label": "slop",
+    "title": "Cover letter opener",
+    "text": "I leverage my proven track record to deliver high-impact outcomes in fast-paced collaborative environments, but provide no company, project, number, or link."
+  },
+  {
+    "mode": "hiring",
+    "label": "clean",
+    "title": "Data resume bullet",
+    "text": "Optimized SQL warehouse queries from 18 minutes to 90 seconds by adding composite indexes and partition pruning on daily revenue reports."
+  },
+  {
+    "mode": "hiring",
+    "label": "review",
+    "title": "Leadership claim",
+    "text": "Led a team to improve platform reliability. Needs team size, reliability metric, specific incident or project evidence, and ownership scope."
+  },
+  {
+    "mode": "hiring",
+    "label": "slop",
+    "title": "Resume objective",
+    "text": "Seeking an opportunity to utilize my skills and contribute to organizational success while growing professionally, but no specific skills, projects, metrics, or tools are named."
+  },
+  {
+    "mode": "hiring",
+    "label": "clean",
+    "title": "Open source contribution",
+    "text": "Contributed OAuth token refresh support to github.com/example/sdk with 4 merged PRs and regression tests for expired tokens in the auth client."
+  },
+  {
+    "mode": "communications",
+    "label": "clean",
+    "title": "Launch decision",
+    "text": "Asha owns the launch checklist. Please approve the rollback note by 3 PM today so release can start at 5 PM."
+  },
+  {
+    "mode": "communications",
+    "label": "clean",
+    "title": "Incident assignment",
+    "text": "Ravi will patch the timeout by EOD. Nina will verify the dashboard after deploy and post results in #incident before closing the customer update."
+  },
+  {
+    "mode": "communications",
+    "label": "review",
+    "title": "Planning note",
+    "text": "We agreed to revisit pricing next week. Missing owner, meeting date, exact decision needed, customer impact, and deadline for the follow-up."
+  },
+  {
+    "mode": "communications",
+    "label": "review",
+    "title": "Status update",
+    "text": "The migration is almost ready. Needs a named owner for validation, deadline for signoff, rollback decision, success metric, and next update time."
+  },
+  {
+    "mode": "communications",
+    "label": "slop",
+    "title": "Corporate update",
+    "text": "Let's align cross-functionally and leverage momentum to drive holistic outcomes moving forward, but no ask, owner, decision, deadline, or measurable outcome is stated."
+  },
+  {
+    "mode": "communications",
+    "label": "slop",
+    "title": "Meeting summary",
+    "text": "We had a productive discussion and will circle back to ensure strategic alignment across stakeholders, but no decision, action item, owner, or deadline is included."
+  },
+  {
+    "mode": "communications",
+    "label": "clean",
+    "title": "Review ask",
+    "text": "Maya will send the API diff by noon tomorrow. Please review auth changes by 2 PM and reply with approve or block."
+  },
+  {
+    "mode": "communications",
+    "label": "review",
+    "title": "Email follow-up",
+    "text": "Can we follow up on the customer issue soon? Missing owner, deadline, expected next action, customer account, and current impact."
+  },
+  {
+    "mode": "communications",
+    "label": "slop",
+    "title": "Team sync",
+    "text": "We should continue to streamline collaboration and optimize our process for better alignment, but the message gives no action, owner, deadline, or decision."
+  },
+  {
+    "mode": "communications",
+    "label": "clean",
+    "title": "Customer escalation",
+    "text": "I will call Acme at 10 AM, Sam will prepare the refund options, and Priya will update the ticket by 11 AM."
+  },
+  {
+    "mode": "code_review",
+    "label": "clean",
+    "title": "Guard empty invite token",
+    "text": "Fixes invite acceptance when token is empty. Changed src/routes/invites.ts and src/auth/invite-service.ts. Added tests in invite-service.test.ts for empty, expired, and already-used tokens. Verified npm test -- invite-service passes. No migration needed; rollback is reverting the route guard."
+  },
+  {
+    "mode": "code_review",
+    "label": "clean",
+    "title": "Limit webhook retry fanout",
+    "text": "Caps webhook retries at 3 attempts in src/jobs/webhook-retry.ts to stop duplicate customer notifications. Added webhook-retry.test.ts with timeout and max-attempt cases. Verified against a local queue with 12 failed events. Risk is delayed delivery for flaky endpoints; rollback is restoring RETRY_LIMIT to 5."
+  },
+  {
+    "mode": "code_review",
+    "label": "clean",
+    "title": "Fix profile image content type",
+    "text": "Updates upload validation to reject SVG profile images and accept png, jpg, and webp only. Files changed: api/uploads.ts, validators/image.ts, validators/image.test.ts. Added regression test for image/svg+xml. Security note included because this touches user-uploaded content."
+  },
+  {
+    "mode": "code_review",
+    "label": "clean",
+    "title": "Add billing idempotency test",
+    "text": "Adds an idempotency key check to billing/charge.ts and documents the Stripe retry behavior in billing/README.md. Test billing/charge.test.ts verifies one invoice is created after two identical webhook deliveries. Manual check used test event evt_retry_021."
+  },
+  {
+    "mode": "code_review",
+    "label": "clean",
+    "title": "Handle repository archived state",
+    "text": "Prevents PR scans on archived repositories by checking repository.archived before fetching files. Changed services/github.ts and added github.test.ts for archived true and false responses. Verified npm run test --workspace apps/api. User-facing error now says archived repositories are read-only."
+  },
+  {
+    "mode": "code_review",
+    "label": "clean",
+    "title": "Tighten admin role migration",
+    "text": "Migration 20260528_admin_roles.sql adds a not null role default and a rollback script. Updated auth/roles.ts to read the normalized value. Verified migration up and down against a local Postgres dump with 421 users and added roles.test.ts for missing role fallback."
+  },
+  {
+    "mode": "code_review",
+    "label": "review",
+    "title": "Improve notification preferences",
+    "text": "Updates notification preference handling and adds a new toggle. Includes the changed component names but missing test coverage, rollout notes, and confirmation that existing saved preferences migrate correctly."
+  },
+  {
+    "mode": "code_review",
+    "label": "review",
+    "title": "Adjust search ranking weights",
+    "text": "Changes search score weights for title and description matches. Needs before and after ranking examples, relevance metrics, and rollback values if customers report worse search results."
+  },
+  {
+    "mode": "code_review",
+    "label": "review",
+    "title": "Refactor upload middleware",
+    "text": "Moves upload validation into a shared middleware and keeps route behavior the same. Missing file-size edge tests, security note for executable extensions, and list of routes using the new middleware."
+  },
+  {
+    "mode": "code_review",
+    "label": "review",
+    "title": "Update analytics event names",
+    "text": "Renames checkout analytics events to match the dashboard. Needs a mapping from old to new event names, dashboard verification, and note on whether historical charts are affected."
+  },
+  {
+    "mode": "code_review",
+    "label": "slop",
+    "title": "Enhance backend quality",
+    "text": "This PR enhances the backend quality by improving the overall architecture and making the system more robust, scalable, and maintainable for future growth."
+  },
+  {
+    "mode": "code_review",
+    "label": "slop",
+    "title": "General fixes",
+    "text": "Fixed multiple issues across the codebase and cleaned up the implementation to make everything work better. The changes are straightforward and should be safe."
+  },
+  {
+    "mode": "code_review",
+    "label": "slop",
+    "title": "Modernize components",
+    "text": "Modernizes several components using best practices and improves developer experience. No specific files, tests, risks, or behavior changes are described."
+  },
+  {
+    "mode": "code_review",
+    "label": "slop",
+    "title": "Optimize API performance",
+    "text": "Optimizes API performance and delivers faster responses by improving internal logic. The implementation is complete and aligns with the overall platform vision."
+  },
+  {
+    "mode": "code_review",
+    "label": "slop",
+    "title": "Apply reviewer feedback",
+    "text": "Applied all reviewer feedback and polished the final solution. Everything has been addressed and the PR is ready to merge."
+  },
+  {
+    "mode": "docs",
+    "label": "clean",
+    "title": "Webhook signature verification docs",
+    "text": "To verify a webhook, read the X-PRGuard-Signature header and compare it with HMAC-SHA256(body, WEBHOOK_SECRET). Example Node.js code is included. Expected success output: signature valid. Expected failure output: 401 invalid webhook signature. Rotate WEBHOOK_SECRET in Settings -> Security."
+  },
+  {
+    "mode": "docs",
+    "label": "clean",
+    "title": "Docker compose quickstart",
+    "text": "Run cp .env.example .env, set MONGO_URI, then run docker compose up --build. Open http://localhost:5173 and call GET http://localhost:4100/api/health. Expected JSON: { status: ok }. Stop with docker compose down. Troubleshooting covers port 4100 already in use."
+  },
+  {
+    "mode": "docs",
+    "label": "clean",
+    "title": "CSV report export guide",
+    "text": "Use POST /api/report with format csv and include scan plus results. Required fields are repository, pullRequest, proofScore, hollowScore, proofBand, and summary. Example request and first CSV row are shown. Expected file name: prguard-report.csv."
+  },
+  {
+    "mode": "docs",
+    "label": "clean",
+    "title": "GitHub token setup docs",
+    "text": "Create a fine-grained token in GitHub Developer settings with public repository read access. Add it as GITHUB_TOKEN in .env. Restart the API server. Verify by scanning expressjs/express and checking that rate.limit is 5000 in the response metadata."
+  },
+  {
+    "mode": "docs",
+    "label": "clean",
+    "title": "Evaluation command docs",
+    "text": "Run npm run evaluate from the repository root. The command reads docs/evaluation-dataset.json and prints total examples, accuracy, false positive rate, false negative rate, confusion matrix, and per-track accuracy. Expected total after expansion is 120."
+  },
+  {
+    "mode": "docs",
+    "label": "clean",
+    "title": "MongoDB Atlas setup docs",
+    "text": "Create an Atlas cluster, add a database user, allow your IP, and copy the Node.js connection string. Replace password and database name, then set MONGO_URI. Verify with GET /api/health/db. Expected response includes connected: true and database: prguard."
+  },
+  {
+    "mode": "docs",
+    "label": "review",
+    "title": "Redis cache guide",
+    "text": "The cache improves response speed and reduces repeated GitHub calls. Missing exact REDIS_URL format, TTL table, cache invalidation command, and expected log line after a cache hit."
+  },
+  {
+    "mode": "docs",
+    "label": "review",
+    "title": "Production environment docs",
+    "text": "Set the required production environment variables before deployment. Needs a complete variable table, which service owns each variable, sample values without secrets, and verification command after deploy."
+  },
+  {
+    "mode": "docs",
+    "label": "review",
+    "title": "Pull request scan docs",
+    "text": "The scan endpoint analyzes repository pull requests and returns review risk. Missing a request payload example, public repo example, rate-limit behavior, and explanation of maxPulls."
+  },
+  {
+    "mode": "docs",
+    "label": "review",
+    "title": "CI gate setup notes",
+    "text": "The CI gate can block risky pull requests using proof scores. Needs YAML example, score threshold explanation, failure output, and steps for disabling the gate temporarily."
+  },
+  {
+    "mode": "docs",
+    "label": "slop",
+    "title": "Platform overview docs",
+    "text": "The platform provides a seamless and intuitive experience that helps teams achieve better results through a robust set of capabilities designed for modern workflows."
+  },
+  {
+    "mode": "docs",
+    "label": "slop",
+    "title": "Setup instructions",
+    "text": "To set up the application, configure the application and run the setup process. After setup is complete, the application will be ready to use in your environment."
+  },
+  {
+    "mode": "docs",
+    "label": "slop",
+    "title": "API usage docs",
+    "text": "The API is simple and powerful. Send data to the API and receive results. The API handles everything automatically and follows best practices."
+  },
+  {
+    "mode": "docs",
+    "label": "slop",
+    "title": "Generic deployment guide",
+    "text": "Deploying is easy with the provided deployment process. Follow your preferred hosting workflow and ensure everything is properly configured for production."
+  },
+  {
+    "mode": "docs",
+    "label": "slop",
+    "title": "Troubleshooting article",
+    "text": "If something does not work, check the configuration and try again. Most issues can be resolved by reviewing the setup and ensuring the system is working correctly."
+  },
+  {
+    "mode": "hiring",
+    "label": "clean",
+    "title": "Frontend performance resume bullet",
+    "text": "Reduced React dashboard load time from 4.8s to 1.9s by replacing a blocking chart bundle with lazy imports and memoized filters. Verified in Lighthouse CI across 18 dashboard routes and shipped in release 2026.04."
+  },
+  {
+    "mode": "hiring",
+    "label": "clean",
+    "title": "Support automation resume bullet",
+    "text": "Built a Python triage script that classified 14,000 monthly support tickets into 9 queues, cutting manual assignment time by 31%. Used pandas, FastAPI, and a weekly audit sheet reviewed by two support leads."
+  },
+  {
+    "mode": "hiring",
+    "label": "clean",
+    "title": "Security project resume bullet",
+    "text": "Implemented OAuth refresh-token rotation for a B2B admin portal used by 6,200 accounts. Added replay detection, audit logs, and integration tests for expired and reused tokens. Incident review showed zero replay alerts after launch."
+  },
+  {
+    "mode": "hiring",
+    "label": "clean",
+    "title": "Take-home explanation with tradeoff",
+    "text": "For the take-home, I used Postgres full-text search instead of Elasticsearch because the dataset was under 50k rows. Added GIN index migration, query benchmarks, and README instructions. p95 search latency was 83 ms on the provided seed data."
+  },
+  {
+    "mode": "hiring",
+    "label": "clean",
+    "title": "Open source maintainer evidence",
+    "text": "Maintained the validation package at github.com/example/forms for 8 months, reviewed 37 PRs, and released v2.3.1 with TypeScript inference fixes. Release notes and benchmark script are linked in the project README."
+  },
+  {
+    "mode": "hiring",
+    "label": "clean",
+    "title": "Data pipeline resume bullet",
+    "text": "Rebuilt a nightly ETL job in Airflow and BigQuery, reducing failures from 11 per month to 2 per month. Added retry alerts in PagerDuty and validation queries for row-count drift over 2 percent."
+  },
+  {
+    "mode": "hiring",
+    "label": "review",
+    "title": "Backend impact claim",
+    "text": "Improved API reliability for a payments service. Needs service name, reliability metric, incident count before and after, and evidence of the exact code or operational change."
+  },
+  {
+    "mode": "hiring",
+    "label": "review",
+    "title": "Cover letter project claim",
+    "text": "I built a customer analytics platform that helped teams make better decisions. Needs specific tools, dataset size, user count, measurable outcome, and a link or short architecture summary."
+  },
+  {
+    "mode": "hiring",
+    "label": "review",
+    "title": "Leadership resume bullet",
+    "text": "Led multiple engineers through a complex migration. Needs team size, migration scope, deadline, business impact, and how success was verified."
+  },
+  {
+    "mode": "hiring",
+    "label": "review",
+    "title": "AI project summary",
+    "text": "Created an AI assistant for internal operations using modern language model tooling. Needs model or provider, evaluation method, failure cases, usage numbers, and guardrails."
+  },
+  {
+    "mode": "hiring",
+    "label": "slop",
+    "title": "Generic full-stack profile",
+    "text": "Results-driven full-stack developer with a passion for building innovative solutions and delivering high-quality products in fast-paced environments, but no project or metric evidence."
+  },
+  {
+    "mode": "hiring",
+    "label": "slop",
+    "title": "Unsupported leadership claim",
+    "text": "Proven leader who transforms teams, drives excellence, and consistently delivers outstanding business outcomes through strategic execution, but no team size, project, or outcome is named."
+  },
+  {
+    "mode": "hiring",
+    "label": "slop",
+    "title": "Buzzword project summary",
+    "text": "Developed a scalable, intelligent, and user-centric platform that streamlined workflows and unlocked value across the organization, but no tool, scale, or result is described."
+  },
+  {
+    "mode": "hiring",
+    "label": "slop",
+    "title": "Vague cover letter",
+    "text": "I am confident that my strong technical background and collaborative mindset make me an ideal candidate who can contribute immediately to your success."
+  },
+  {
+    "mode": "hiring",
+    "label": "slop",
+    "title": "Template achievement bullet",
+    "text": "Leveraged cutting-edge technologies to optimize processes, enhance productivity, and deliver measurable impact for stakeholders, but no technology, process, measurement, or stakeholder is named."
+  },
+  {
+    "mode": "communications",
+    "label": "clean",
+    "title": "Database migration go decision",
+    "text": "Decision: proceed with the customer_id migration tonight at 9 PM UTC. Owner: Neha. Sam will monitor error rate for 30 minutes after deploy and post rollback decision in #release by 9:45 PM UTC."
+  },
+  {
+    "mode": "communications",
+    "label": "clean",
+    "title": "Design review request",
+    "text": "Please review the checkout error-state mock by 2 PM today. Owner: Leo. Reply approve or block in the Figma thread. If blocked, include the exact screen and reason so I can update it before the 4 PM handoff."
+  },
+  {
+    "mode": "communications",
+    "label": "clean",
+    "title": "Incident status update",
+    "text": "Status: payment retries are stable for the last 20 minutes. Mira owns the root-cause note by 6 PM. I will keep the feature flag off until Finance confirms no duplicate invoices in Stripe."
+  },
+  {
+    "mode": "communications",
+    "label": "clean",
+    "title": "Customer follow-up email",
+    "text": "I will email Northwind by 11 AM with the corrected invoice. Jay will attach the refund receipt to Zendesk ticket 4482. Please confirm by noon whether we should offer a service credit."
+  },
+  {
+    "mode": "communications",
+    "label": "clean",
+    "title": "Meeting note with next actions",
+    "text": "Decision: keep SSO optional for beta. Actions: Priya updates docs by Friday 3 PM, Marco adds the toggle copy, and I will send the beta customer note after legal review."
+  },
+  {
+    "mode": "communications",
+    "label": "clean",
+    "title": "Blocked task escalation",
+    "text": "Blocked on vendor API access. Owner: Anil. Need Security to approve the new IP allowlist by 5 PM today. If not approved, we will move the integration test to tomorrow's release window."
+  },
+  {
+    "mode": "communications",
+    "label": "review",
+    "title": "Migration reminder",
+    "text": "Reminder that the database migration is planned soon and everyone should be ready. Missing exact time, named owner, rollback decision, and who verifies success."
+  },
+  {
+    "mode": "communications",
+    "label": "review",
+    "title": "Customer issue update",
+    "text": "The customer issue is being investigated and we think it is related to caching. Needs owner, next update time, customer-facing message, and decision on workaround."
+  },
+  {
+    "mode": "communications",
+    "label": "review",
+    "title": "Launch prep note",
+    "text": "Launch prep is mostly done and the final checks are in progress. Needs the checklist link, exact blockers, owner for each blocker, and go or no-go deadline."
+  },
+  {
+    "mode": "communications",
+    "label": "review",
+    "title": "Hiring panel recap",
+    "text": "The candidate discussion went well and we should move forward if everyone agrees. Missing decision owner, deadline for feedback, next interview step, and concerns to resolve."
+  },
+  {
+    "mode": "communications",
+    "label": "slop",
+    "title": "Executive alignment note",
+    "text": "We should continue aligning on the strategic direction and make sure stakeholders are empowered to collaborate effectively as we move toward shared success."
+  },
+  {
+    "mode": "communications",
+    "label": "slop",
+    "title": "Ambiguous project update",
+    "text": "Things are progressing well and the team is working through the remaining items. We will keep pushing forward and circle back when there is more clarity."
+  },
+  {
+    "mode": "communications",
+    "label": "slop",
+    "title": "No-owner status note",
+    "text": "The issue should probably be handled soon so that the customer experience is not impacted. Someone should take a look and decide what makes sense."
+  },
+  {
+    "mode": "communications",
+    "label": "slop",
+    "title": "Corporate planning email",
+    "text": "As we optimize for impact, it is important to leverage our momentum and ensure a cohesive approach across all workstreams."
+  },
+  {
+    "mode": "communications",
+    "label": "slop",
+    "title": "Vague decision summary",
+    "text": "We discussed the options and landed in a good place. The team is aligned and next steps will be handled appropriately."
+  }
+]

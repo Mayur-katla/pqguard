@@ -1,0 +1,31 @@
+{
+  "name": "@prguard/web",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "lint": "eslint src --ext .ts,.tsx"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "^4.5.0",
+    "lucide-react": "^0.511.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "recharts": "^2.15.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.28.0",
+    "@types/react": "^19.1.6",
+    "@types/react-dom": "^19.1.5",
+    "autoprefixer": "^10.4.21",
+    "eslint": "^9.28.0",
+    "playwright": "^1.60.0",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.33.1",
+    "vite": "^6.3.5"
+  }
+}
