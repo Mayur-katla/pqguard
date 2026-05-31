@@ -12,6 +12,8 @@ PRGuard detects content that looks complete but lacks proof a human understood o
 
 ## Quickstart
 
+Use Node.js `22.13.0` or newer.
+
 ```bash
 npm install
 npm run dev
@@ -85,16 +87,16 @@ Express API
 MongoDB, optional for scan persistence
 ```
 
-The scoring package is isolated in `packages/scoring` so it can be tested independently and reused by API routes.
+The scoring package is isolated in `packages/scoring` so it can be built independently and reused by API routes.
 
 ## Development Commands
 
 ```bash
 npm run dev       # web + API
 npm run build     # all workspaces
-npm run test      # scoring and API tests
 npm run lint      # lint all workspaces
 npm run evaluate  # local evaluation metrics
+npm run check     # production verification
 ```
 
 ## API
