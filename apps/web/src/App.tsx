@@ -1,3 +1,5 @@
-import AppV2 from "./AppV2";
+import { MainDashboard } from "./pages/MainDashboard";
 
-export default AppV2;
+export default function App() {
+  return <MainDashboard />;
+}
