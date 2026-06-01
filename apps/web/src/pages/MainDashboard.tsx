@@ -474,6 +474,8 @@ export function MainDashboard() {
           </section>
         </div>
 
+        {isCodeReview && proof ? <ArtifactWorkspace track={activeTrack} proof={proof} onCopy={copyText} /> : null}
+
         {isCodeReview ? (
           <CodeReviewWorkspace
             scan={scan}
