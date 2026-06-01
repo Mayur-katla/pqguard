@@ -6,7 +6,7 @@ import { z } from "zod";
 import { analyzeProof, detectUniversalContext, modeFromContext, scoreArtifact } from "@prguard/scoring";
 import { config, providerStatus } from "./config.js";
 import { checkDb, saveScan } from "./db.js";
-import { enrichProofAnalysis } from "./services/ai.js";
+import { enrichProofAnalysis, extractPdfTextWithGemini } from "./services/ai.js";
 import { generateGithubActionYaml } from "./services/ci.js";
 import { RepoUrlError, scanGitHubRepository } from "./services/github.js";
 import { sanitizeScanReport, toCsv, toMarkdown, toPdf } from "./services/reports.js";
@@ -30,7 +30,7 @@ app.use(cors({
     callback(null, false);
   }
 }));
-app.use(express.json({ limit: "5mb" }));
+app.use(express.json({ limit: "8mb" }));
 app.use(morgan(config.nodeEnv === "production" ? "combined" : "dev"));
 
 app.get("/api/health", (_req, res) => {
@@ -119,6 +119,56 @@ app.post("/api/proof/analyze", async (req, res, next) => {
     res.json(await enrichProofAnalysis(analyzeProof(proofInput), proofInput));
   } catch (error) {
     next(error);
+  }
+});
+
+const pdfExtractSchema = z.object({
+  fileName: z.string().max(180).optional(),
+  mimeType: z.literal("application/pdf").default("application/pdf"),
+  data: z.string().min(20).max(7_000_000),
+  mode: z.enum(["docs", "hiring"]).optional()
+});
+
+app.post("/api/files/extract-pdf", async (req, res, next) => {
+  try {
+    const input = pdfExtractSchema.parse(req.body);
+    const bytes = Buffer.from(input.data, "base64");
+    if (bytes.length > 5_000_000) {
+      return res.status(413).json({
+        error: "PDF is too large",
+        details: ["Upload a PDF under 5 MB."]
+      });
+    }
+
+    const result = await extractPdfTextWithGemini({
+      base64: input.data,
+      mimeType: input.mimeType,
+      fileName: input.fileName,
+      mode: input.mode
+    });
+    if (result.text.length > MAX_ARTIFACT_TEXT_CHARS) {
+      return res.status(413).json({
+        error: "Extracted text is too large",
+        details: [`Keep extracted text under ${MAX_ARTIFACT_TEXT_CHARS.toLocaleString()} characters.`]
+      });
+    }
+
+    return res.json(result);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "";
+    if (/429|quota|rate/i.test(message)) {
+      return res.status(429).json({
+        error: "AI PDF extraction is rate-limited",
+        details: ["Try again later, upload a text-based PDF, or paste the resume text directly."]
+      });
+    }
+    if (/API key|not configured|403|401/i.test(message)) {
+      return res.status(400).json({
+        error: "AI PDF extraction is not available",
+        details: ["Configure a valid Gemini key, upload a text-based PDF, or paste the content directly."]
+      });
+    }
+    return next(error);
   }
 });
 

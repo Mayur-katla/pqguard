@@ -56,7 +56,7 @@ Main hurdle: generic but harmless docs were getting scored too harshly. We calib
 
 Built for resumes, cover letters, portfolios, and take-home writeups. It checks whether claims are measurable, owned by the candidate, connected to tools/projects, and supported by evidence.
 
-Main hurdle: PDF upload. Text-based PDFs worked, but scanned/image-only PDFs looked "unreadable." We added clear upload handling and a friendly message explaining that scanned PDFs need OCR or pasted text.
+Main hurdle: PDF upload. Text-based PDFs worked, but scanned/image-only PDFs needed an AI extraction fallback. We added PDF text extraction, AI fallback for hard PDFs, and automatic analysis after upload.
 
 **Track D - Communications**
 
@@ -193,7 +193,7 @@ Express API
 
 ## Known Limits
 
-- PDF upload reads selectable text only. Scanned/image-only PDFs need OCR or pasted text.
+- PDF upload reads selectable text first, then can use AI extraction for harder PDFs when the provider is available.
 - AI reports depend on provider availability and rate limits.
 - Conservative scoring may mark thin but acceptable content as "Needs Review."
 - GitHub rate limits apply without a token.

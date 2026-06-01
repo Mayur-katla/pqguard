@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
-import { analyzeProof, downloadReport, getCiYaml, scanRepo } from "../lib/api";
+import { analyzeProof, downloadReport, extractPdfWithAi, getCiYaml, scanRepo } from "../lib/api";
 import { extractUploadText } from "../lib/files";
 import { maskSensitiveText } from "../lib/privacy";
 import type { AnalysisMode, ClaimEvidence, FixStep, ProofAnalysisResult, PullRequestScore, ScanResult } from "../lib/types";
@@ -271,6 +271,16 @@ export function MainDashboard() {
     notify(`This document is ${extra.toLocaleString()} characters over the limit. Shorten it under ${maxArtifactTextChars.toLocaleString()} characters or test the most relevant README section.`, "error");
   }
 
+  function isPdfFile(file: File) {
+    return file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+  }
+
+  async function analyzeContent(analysisMode: AnalysisMode, content: string, title: string, label: string) {
+    const result = await analyzeProof(analysisMode, content, title);
+    setProof(result);
+    notify(`${label} proof score: ${result.proofScore}/100`, "success");
+  }
+
   const sortedPrs = useMemo(() => [...(scan?.pullRequests ?? [])].sort((a, b) => b.score.score - a.score.score), [scan]);
   const topRisk = scan?.summary.topRisk[0] ?? sortedPrs[0] ?? null;
   const averageScore = scan?.summary.averageScore ?? 0;
@@ -309,7 +319,17 @@ export function MainDashboard() {
 
     setLoading(true);
     try {
-      const content = await extractUploadText(file);
+      let content = "";
+      try {
+        content = await extractUploadText(file);
+      } catch (error) {
+        if (!isPdfFile(file) || !["docs", "hiring"].includes(activeTrack.mode)) {
+          throw error;
+        }
+        notify("No selectable PDF text found. Trying AI extraction now...", "info");
+        const extracted = await extractPdfWithAi(file, activeTrack.mode);
+        content = extracted.text;
+      }
       if (!content.trim()) {
         notify("No readable text was found in this file. Try exporting the file as text or paste the content directly.", "error");
         return;
@@ -321,7 +341,8 @@ export function MainDashboard() {
       setText(content);
       setUploadedFileName(file.name);
       setProof(null);
-      notify(`Loaded ${file.name} with ${content.length.toLocaleString()} readable characters.`, "success");
+      notify(`Loaded ${file.name} with ${content.length.toLocaleString()} readable characters. Running analysis...`, "success");
+      await analyzeContent(activeTrack.mode, content, file.name, activeTrack.label);
     } catch (error) {
       notify(error instanceof Error ? error.message : "Could not read this file. Paste the content directly instead.", "error");
     } finally {
@@ -341,9 +362,7 @@ export function MainDashboard() {
 
     setLoading(true);
     try {
-      const result = await analyzeProof(mode, text, uploadedFileName || `${activeTrack.label} live input`);
-      setProof(result);
-      notify(`${activeTrack.label} proof score: ${result.proofScore}/100`, "success");
+      await analyzeContent(mode, text, uploadedFileName || `${activeTrack.label} live input`, activeTrack.label);
     } catch (error) {
       notify(error instanceof Error ? error.message : "Analysis failed. Check the input and try again.", "error");
     } finally {

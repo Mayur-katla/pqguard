@@ -20,6 +20,7 @@ export interface AiReview {
 }
 
 type ProviderName = NonNullable<AiReview["provider"]>;
+type PdfExtractionMode = "docs" | "hiring";
 
 interface ProviderResult {
   provider: ProviderName;
@@ -27,7 +28,16 @@ interface ProviderResult {
   text: string;
 }
 
+export interface PdfExtractionResult {
+  provider: "gemini";
+  model: string;
+  text: string;
+  notes: string[];
+}
+
 interface AiJson {
+  text?: unknown;
+  notes?: unknown;
   summary?: unknown;
   confidence?: unknown;
   needsHumanReview?: unknown;
@@ -187,6 +197,70 @@ async function callGemini(prompt: string): Promise<ProviderResult> {
   const text = body.candidates?.[0]?.content?.parts?.map((part) => part.text ?? "").join("\n").trim();
   if (!text) throw new Error("Gemini returned an empty response.");
   return { provider: "gemini", model, text };
+}
+
+export async function extractPdfTextWithGemini(input: {
+  base64: string;
+  mimeType: string;
+  fileName?: string;
+  mode?: PdfExtractionMode;
+}): Promise<PdfExtractionResult> {
+  if (!config.aiEnabled || !config.geminiApiKey) {
+    throw new Error("This PDF has no selectable text and AI PDF extraction is not configured. Upload a text-based PDF, TXT, or MD file, or paste the content.");
+  }
+
+  const model = config.geminiModel;
+  const modeLabel = input.mode === "hiring" ? "resume or hiring document" : "documentation";
+  const prompt = [
+    `Extract readable text from this ${modeLabel} PDF for PRGuard analysis.`,
+    "Return strict JSON only with keys: text, notes.",
+    "The text field must contain the document text in reading order.",
+    "Do not summarize, rewrite, invent names, invent metrics, or add facts that are not visible in the PDF.",
+    "If a section is unreadable, omit it and add a short note.",
+    `File name: ${input.fileName ?? "uploaded.pdf"}`
+  ].join("\n");
+
+  const response = await fetchWithTimeout(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-goog-api-key": config.geminiApiKey
+    },
+    body: JSON.stringify({
+      systemInstruction: {
+        parts: [{ text: "You are an OCR-style PDF text extractor. Extract only text visible in the file. Never add facts." }]
+      },
+      contents: [{
+        role: "user",
+        parts: [
+          { inline_data: { mime_type: input.mimeType, data: input.base64 } },
+          { text: prompt }
+        ]
+      }],
+      generationConfig: {
+        temperature: 0,
+        responseMimeType: "application/json"
+      }
+    })
+  }, Math.max(config.aiTimeoutMs, 20000));
+
+  if (!response.ok) throw new Error(`Gemini PDF extraction ${response.status}: ${(await response.text()).slice(0, 180)}`);
+  const body = (await response.json()) as { candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }> };
+  const rawText = body.candidates?.[0]?.content?.parts?.map((part) => part.text ?? "").join("\n").trim() ?? "";
+  const parsed = extractJson(rawText);
+  const extracted = typeof parsed?.text === "string" ? parsed.text.trim() : rawText.trim();
+  const notes = arrayOfStrings(parsed?.notes);
+
+  if (!extracted) {
+    throw new Error("AI could not extract readable text from this PDF. Try a text-based PDF, TXT, MD, or paste the content.");
+  }
+
+  return {
+    provider: "gemini",
+    model,
+    text: extracted,
+    notes
+  };
 }
 
 async function callGroq(prompt: string): Promise<ProviderResult> {

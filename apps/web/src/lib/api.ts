@@ -49,6 +49,32 @@ export function analyzeProof(mode: AnalysisMode, text: string, title?: string) {
   });
 }
 
+function base64FromFile(file: File) {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error("Could not read this PDF file."));
+    reader.onload = () => {
+      const result = typeof reader.result === "string" ? reader.result : "";
+      const [, base64 = ""] = result.split(",");
+      resolve(base64);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+export async function extractPdfWithAi(file: File, mode: AnalysisMode) {
+  const data = await base64FromFile(file);
+  return request<{ text: string; provider: string; model: string; notes: string[] }>("/files/extract-pdf", {
+    method: "POST",
+    body: JSON.stringify({
+      fileName: file.name,
+      mimeType: "application/pdf",
+      data,
+      mode: mode === "hiring" || mode === "docs" ? mode : undefined
+    })
+  });
+}
+
 export async function getCiYaml(threshold: number) {
   let response: Response;
   try {
