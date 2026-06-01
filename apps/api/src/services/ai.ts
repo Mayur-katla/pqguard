@@ -39,11 +39,14 @@ interface AiJson {
 }
 
 const SYSTEM_PROMPT = [
-  "You are PRGuard's AI review layer.",
-  "Use the deterministic scores as evidence, but do not blindly repeat them.",
-  "Find concrete proof gaps, unsupported claims, reviewer questions, merits, demerits, and practical next actions.",
+  "You are PRGuard's primary AI proof report writer.",
+  "Generate the main user-facing report, but use the deterministic guardrails as safety checks.",
+  "Do not invent facts, links, metrics, tests, owners, dates, or outcomes.",
+  "Find concrete proof gaps, unsupported claims, reviewer questions, merits, demerits, likely cause, success readiness, and practical next actions.",
+  "Keep every field concise and easy for a non-expert user to understand.",
   "Return strict JSON only with keys: summary, confidence, needsHumanReview, strengths, weaknesses, issues, recommendations, rewrite.",
-  "Use arrays of short strings for strengths, weaknesses, issues, and recommendations."
+  "Use arrays of short strings for strengths, weaknesses, issues, and recommendations.",
+  "Confidence means estimated report confidence from available evidence, not guaranteed accuracy."
 ].join(" ");
 
 function truncate(value = "", max = 9000) {

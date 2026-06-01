@@ -23,7 +23,7 @@ import type { ReactNode } from "react";
 import { analyzeProof, downloadReport, getCiYaml, scanRepo } from "../lib/api";
 import { extractUploadText } from "../lib/files";
 import { maskSensitiveText } from "../lib/privacy";
-import type { AiReview, AnalysisMode, ClaimEvidence, FixStep, ProofAnalysisResult, PullRequestScore, ScanResult } from "../lib/types";
+import type { AnalysisMode, ClaimEvidence, FixStep, ProofAnalysisResult, PullRequestScore, ScanResult } from "../lib/types";
 import { Modal } from "../components/Modal";
 import { Toast } from "../components/Toast";
 
@@ -156,6 +156,32 @@ function failedProofGaps(proof?: ProofAnalysisResult | null) {
 function visibleProofGapCount(proof: ProofAnalysisResult) {
   const aiGapCount = proof.aiReview?.status === "generated" ? proof.aiReview.weaknesses.length + proof.aiReview.issues.length : 0;
   return Math.max(failedProofGaps(proof).length, aiGapCount);
+}
+
+function aiGenerated(proof: ProofAnalysisResult) {
+  return proof.aiReview?.status === "generated";
+}
+
+function primaryReport(proof: ProofAnalysisResult) {
+  const hasAi = aiGenerated(proof);
+  const ai = proof.aiReview;
+  const deterministicMerits = proof.missingProof.filter((item) => item.passed).map((item) => item.label);
+  const deterministicDemerits = proof.missingProof.filter((item) => !item.passed).map((item) => `${item.label}: ${item.detail}`);
+  const deterministicFixes = proof.fixPlan.map((step) => `${step.title}: ${step.detail}`);
+  const successRate = hasAi && typeof ai?.confidence === "number" ? Math.round(ai.confidence * 100) : proof.proofScore;
+
+  return {
+    source: hasAi ? "AI-first report" : "Guardrail fallback",
+    sourceDetail: hasAi ? [ai?.provider, ai?.model].filter(Boolean).join(" / ") : "Deterministic proof checks",
+    successRate,
+    successHelper: hasAi ? "AI confidence checked against guardrails" : "Proof readiness from guardrails",
+    cause: ai?.summary || proof.verdictReason,
+    merits: (hasAi && ai?.strengths.length ? ai.strengths : deterministicMerits).slice(0, 5),
+    demerits: (hasAi && [...(ai?.weaknesses ?? []), ...(ai?.issues ?? [])].length ? [...(ai?.weaknesses ?? []), ...(ai?.issues ?? [])] : deterministicDemerits).slice(0, 5),
+    fixes: (hasAi && ai?.recommendations.length ? ai.recommendations : deterministicFixes).slice(0, 4),
+    needsHumanReview: hasAi ? Boolean(ai?.needsHumanReview) : proof.verdict !== "strong_proof",
+    usingAi: hasAi
+  };
 }
 
 function topReviewRisks(scan: ScanResult | null) {
@@ -483,7 +509,6 @@ export function MainDashboard() {
           <div className="grid gap-4 lg:grid-cols-2">
             <ScoreCard pr={selectedPr} />
             <ProofCard proof={selectedPr.proof} onCopy={copyText} />
-            <AiReviewPanel review={selectedPr.proof.aiReview} onCopy={copyText} />
             <button className={secondaryButton} type="button" onClick={() => setActiveModal("evidence")}>
               Evidence Map
             </button>
@@ -785,81 +810,96 @@ function ArtifactWorkspace({ track, proof, onCopy }: { track: TrackConfig; proof
   if (!proof) {
     return (
       <section className="grid gap-4 md:grid-cols-3">
-        <InfoPanel icon={<ListChecks size={19} />} title="Checklist" text={`Run ${track.label} analysis to see passed and missing proof checks.`} />
-        <InfoPanel icon={<Target size={19} />} title="Claim Map" text="Claims are mapped to concrete evidence, partial support, or missing proof." />
-        <InfoPanel icon={<BarChart3 size={19} />} title="Metrics" text="Hollow score, proof score, density, filler, and issue counts appear here." />
+        <InfoPanel icon={<ShieldCheck size={19} />} title="AI-first report" text={`Run ${track.label} analysis to get a concise report with cause, merits, demerits, and fixes.`} />
+        <InfoPanel icon={<ListChecks size={19} />} title="Guardrails" text="Deterministic proof checks keep the report consistent and provide fallback when AI is unavailable." />
+        <InfoPanel icon={<BarChart3 size={19} />} title="Success rate" text="The report shows estimated readiness from AI confidence and proof guardrails, not a perfect accuracy claim." />
       </section>
     );
   }
 
-  const merits = proof.missingProof.filter((item) => item.passed).map((item) => item.label);
-  const demerits = proof.missingProof.filter((item) => !item.passed).map((item) => item.label);
+  const report = primaryReport(proof);
   const proofGapCount = visibleProofGapCount(proof);
-  const metricEntries = Object.entries(proof.hollowScore.metrics);
+  const guardrailFailures = failedProofGaps(proof).slice(0, 4);
+  const reportText = [
+    `${track.label} PRGuard report`,
+    `Verdict: ${proof.verdictLabel}`,
+    `Success Rate: ${report.successRate}%`,
+    `Cause: ${report.cause}`,
+    `Merits:\n${report.merits.map((item) => `- ${item}`).join("\n") || "- None found"}`,
+    `Demerits:\n${report.demerits.map((item) => `- ${item}`).join("\n") || "- None found"}`,
+    `Recommended Fixes:\n${report.fixes.map((item) => `- ${item}`).join("\n") || "- No fixes returned"}`,
+    `Next Action: ${proof.nextAction}`
+  ].join("\n\n");
 
   return (
     <>
       <VerdictCard proof={proof} />
 
       <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-        <MetricCard label="Human Proof" value={proof.proofScore} icon={<ShieldCheck size={18} />} tone={proofTone(proof.proofScore)} helper={proof.proofBand} />
-        <MetricCard label="Hollow Score" value={proof.hollowScore.score} icon={<Gauge size={18} />} tone={riskTone(proof.hollowScore.score)} helper={proof.hollowScore.band} />
+        <MetricCard label="Success Rate" value={`${report.successRate}%`} icon={<ShieldCheck size={18} />} tone={proofTone(report.successRate)} helper={report.successHelper} />
+        <MetricCard label="Report Source" value={report.usingAi ? "AI" : "Rules"} icon={<Gauge size={18} />} tone="from-aurora to-cyan-200 text-inverse" helper={report.sourceDetail || report.source} />
         <MetricCard label="Proof Gaps" value={proofGapCount} icon={<AlertTriangle size={18} />} tone="from-flag to-block text-white" helper={proofGapCount ? "Needs attention" : "No checklist gaps"} />
-        <MetricCard label="Claims Checked" value={proof.claims.length} icon={<Target size={18} />} tone="from-aurora to-cyan-200 text-inverse" helper="Mapped to evidence" />
+        <MetricCard label="Reviewer Check" value={report.needsHumanReview ? "Yes" : "No"} icon={<Target size={18} />} tone={report.needsHumanReview ? "from-review to-amber-200 text-inverse" : "from-proof to-emerald-300 text-inverse"} helper={report.needsHumanReview ? "Review before trusting" : "Low follow-up need"} />
       </section>
 
       <section className="analysis-two-column">
-        <ProofCard proof={proof} onCopy={onCopy} />
-        <AiReviewPanel review={proof.aiReview} onCopy={onCopy} />
-      </section>
-
-      <section className="analysis-two-column">
-        <Panel title="Evidence Found and Proof Gaps" eyebrow={`${track.label} analysis`}>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <SignalList title="Evidence Found" empty="No strong proof checks passed yet." items={merits} tone="proof" />
-            <SignalList title="Proof Gaps" empty="No missing proof checks found." items={demerits} tone="block" />
+        <Panel title="AI Proof Report" eyebrow={report.source}>
+          <div className="grid gap-4">
+            <div className="rounded-xl border border-line/70 bg-elevated/70 p-4">
+              <span className="text-caption font-bold uppercase text-muted">Cause</span>
+              <p className="mt-2 text-body-sm text-muted">{report.cause}</p>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <SignalList title="Merits" empty="No strong merits found." items={report.merits} tone="proof" />
+              <SignalList title="Demerits" empty="No important demerits found." items={report.demerits} tone="block" />
+            </div>
+            <SignalList title="Recommended Fixes" empty="No fixes returned." items={report.fixes} tone="proof" />
+            <div className="flex flex-col gap-2 xs:flex-row">
+              <button className={secondaryButton} type="button" onClick={() => onCopy(reportText, "AI report copied.")}>
+                <Clipboard size={17} />
+                Copy Report
+              </button>
+            </div>
           </div>
         </Panel>
-        <Panel title="Scoring Metrics" eyebrow="Signals">
-          <div className="grid gap-2 sm:grid-cols-2">
-            {metricEntries.map(([name, value]) => (
-              <MiniStat key={name} label={name.replace(/[A-Z]/g, " $&")} value={value} />
-            ))}
-          </div>
-        </Panel>
-      </section>
-
-      <section className="analysis-two-column">
-        <Panel title="Issue Breakdown" eyebrow="What to fix">
-          <div className="grid gap-2">
-            {proof.missingProof.map((item) => (
-              <div className="flex items-start gap-3 rounded-lg border border-line/60 bg-elevated/70 p-3" key={item.label}>
-                {item.passed ? <CheckCircle2 className="mt-0.5 text-proof" size={17} /> : <AlertTriangle className="mt-0.5 text-review" size={17} />}
-                <div>
-                  <strong className="block text-body-sm text-ink">{item.label}</strong>
-                  <p className="mt-1 text-body-sm text-muted">{item.detail}</p>
-                </div>
+        <Panel title="Guardrail Check" eyebrow="Fallback and consistency">
+          <div className="grid gap-3">
+            <p className="text-body-sm text-muted">
+              Deterministic guardrails still check proof gaps, hollow score, and claims so the AI report stays reviewable.
+            </p>
+            <div className="grid gap-2 sm:grid-cols-3">
+              <MiniStat label="Proof Score" value={proof.proofScore} />
+              <MiniStat label="Hollow Score" value={proof.hollowScore.score} />
+              <MiniStat label="Claims" value={proof.claims.length} />
+            </div>
+            {guardrailFailures.length ? (
+              <div className="grid gap-2">
+                {guardrailFailures.map((item) => (
+                  <div className="rounded-lg border border-line/60 bg-elevated/70 p-3" key={item.label}>
+                    <strong className="block text-body-sm text-ink">{item.label}</strong>
+                    <p className="mt-1 text-body-sm text-muted">{item.detail}</p>
+                  </div>
+                ))}
               </div>
-            ))}
+            ) : (
+              <EmptyState text="No major deterministic guardrail failures found." />
+            )}
           </div>
-        </Panel>
-        <Panel title="Claim to Evidence Map" eyebrow="Evidence">
-          <EvidenceMap claims={proof.claims} />
         </Panel>
       </section>
 
       <section className="analysis-two-column">
-        <Panel title="Fix Plan" eyebrow="Next actions">
-          <FixPlan steps={proof.fixPlan} onCopy={onCopy} />
-        </Panel>
-        <Panel title="Reviewer Questions" eyebrow="Follow-up">
+        <Panel title="Reviewer Questions" eyebrow="Only what matters next">
           <ul className="grid gap-2">
-            {proof.questions.map((question) => (
+            {proof.questions.slice(0, 4).map((question) => (
               <li className="rounded-lg border border-line/60 bg-elevated/70 p-3 text-body-sm text-muted" key={question}>
                 {question}
               </li>
             ))}
           </ul>
+        </Panel>
+        <Panel title="Claim Map" eyebrow="Compact evidence view">
+          <EvidenceMap claims={proof.claims.slice(0, 3)} />
         </Panel>
       </section>
     </>
@@ -929,49 +969,6 @@ function SignalList({ title, items, empty, tone }: { title: string; items: strin
   );
 }
 
-function AiReviewPanel({ review, onCopy }: { review?: AiReview; onCopy?: (text: string, label?: string) => void }) {
-  if (!review) {
-    return <InfoPanel icon={<ShieldCheck size={19} />} title="Proof Review Summary" text="Proof review will appear here when a configured provider responds." />;
-  }
-
-  if (review.status !== "generated") {
-    const text = review.status === "disabled" ? "Proof review is disabled. The deterministic proof engine is still active." : review.error ?? "No AI provider responded. Deterministic analysis is still active.";
-    return <InfoPanel icon={<ShieldCheck size={19} />} title="Proof Review Summary" text={text} />;
-  }
-
-  const provider = [review.provider, review.model].filter(Boolean).join(" / ");
-  return (
-    <Panel title="Proof Review Summary" eyebrow={provider || "Configured provider"}>
-      <div className="grid gap-3">
-        {review.summary ? <p className="text-body-sm text-muted">{review.summary}</p> : null}
-        <div className="grid gap-2 sm:grid-cols-2">
-          <MiniStat label="Review Confidence" value={typeof review.confidence === "number" ? `${Math.round(review.confidence * 100)}%` : "--"} />
-          <MiniStat label="Reviewer Check" value={review.needsHumanReview ? "Needed" : "Optional"} />
-        </div>
-        <SignalList title="Evidence Found" empty="No strengths returned." items={review.strengths} tone="proof" />
-        <SignalList title="Proof Gaps" empty="No weaknesses returned." items={[...review.weaknesses, ...review.issues]} tone="block" />
-        <SignalList title="Recommended Fixes" empty="No recommendations returned." items={review.recommendations} tone="proof" />
-        {review.rewrite ? (
-          <div className="rounded-xl border border-aurora/30 bg-aurora-soft/25 p-3">
-            <div className="flex flex-col items-start justify-between gap-3 sm:flex-row">
-              <div className="min-w-0">
-                <span className="text-caption font-bold uppercase text-muted">Safer Rewrite</span>
-                <p className="mt-1 whitespace-pre-wrap text-body-sm text-ink">{review.rewrite}</p>
-              </div>
-              {onCopy ? (
-                <button className={`${secondaryButton} shrink-0`} type="button" onClick={() => onCopy(review.rewrite ?? "", "Safer rewrite copied.")}>
-                  <Clipboard size={17} />
-                  Copy
-                </button>
-              ) : null}
-            </div>
-          </div>
-        ) : null}
-      </div>
-    </Panel>
-  );
-}
-
 function MiniStat({ label, value }: { label: string; value: string | number }) {
   return (
     <div className="grid min-h-14 place-items-center rounded-lg border border-line/70 bg-panel/70 px-2 text-center">
@@ -1036,41 +1033,40 @@ function ScoreCard({ pr }: { pr: PullRequestScore }) {
 }
 
 function ProofCard({ proof, onCopy }: { proof: ProofAnalysisResult; onCopy?: (text: string, label?: string) => void }) {
+  const report = primaryReport(proof);
   const questionText = proof.questions.join("\n");
-  const fixText = proof.fixPlan.map((step) => `${step.title}: ${step.detail}`).join("\n");
+  const reportText = [
+    `Verdict: ${proof.verdictLabel}`,
+    `Success Rate: ${report.successRate}%`,
+    `Cause: ${report.cause}`,
+    `Merits:\n${report.merits.map((item) => `- ${item}`).join("\n") || "- None found"}`,
+    `Demerits:\n${report.demerits.map((item) => `- ${item}`).join("\n") || "- None found"}`,
+    `Recommended Fixes:\n${report.fixes.map((item) => `- ${item}`).join("\n") || "- No fixes returned"}`
+  ].join("\n\n");
 
   return (
     <article className="rounded-xl border border-line/80 bg-elevated/70 p-4">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <span className="text-caption font-bold uppercase text-muted">Verdict</span>
+          <span className="text-caption font-bold uppercase text-muted">{report.source}</span>
           <h3 className="mt-1 text-title-lg text-ink">{proof.verdictLabel}</h3>
         </div>
-        <span className={`grid h-14 w-14 place-items-center rounded-xl bg-gradient-to-br text-xl font-extrabold ${proofTone(proof.proofScore)}`}>{proof.proofScore}</span>
+        <span className={`grid h-14 w-16 place-items-center rounded-xl bg-gradient-to-br text-xl font-extrabold ${proofTone(report.successRate)}`}>{report.successRate}%</span>
       </div>
-      <p className="mt-3 text-body-sm text-muted">{proof.verdictReason}</p>
-      <div className="mt-4 grid grid-cols-3 gap-2">
-        <MiniStat label="Hollow" value={proof.hollowScore.score} />
-        <MiniStat label="Proof Gaps" value={visibleProofGapCount(proof)} />
-        <MiniStat label="Claims Checked" value={proof.claims.length} />
-      </div>
+      <p className="mt-3 text-body-sm text-muted">{report.cause}</p>
       <div className="mt-4">
-        <span className="text-caption font-bold uppercase text-muted">Questions</span>
-        <ul className="mt-2 grid gap-2">
-          {proof.questions.slice(0, 4).map((question) => (
-            <li className="rounded-lg border border-line/60 bg-panel/70 p-3 text-body-sm text-muted" key={question}>
-              {question}
-            </li>
-          ))}
-        </ul>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <SignalList title="Merits" empty="No strong merits found." items={report.merits.slice(0, 3)} tone="proof" />
+          <SignalList title="Demerits" empty="No important demerits found." items={report.demerits.slice(0, 3)} tone="block" />
+        </div>
       </div>
       {onCopy ? (
         <div className="mt-4 flex flex-col gap-2 xs:flex-row">
           <button className={secondaryButton} type="button" onClick={() => onCopy(questionText, "Questions copied.")}>
             Copy Questions
           </button>
-          <button className={secondaryButton} type="button" onClick={() => onCopy(fixText, "Fix plan copied.")}>
-            Copy Fix Plan
+          <button className={secondaryButton} type="button" onClick={() => onCopy(reportText, "Report copied.")}>
+            Copy Report
           </button>
         </div>
       ) : null}
