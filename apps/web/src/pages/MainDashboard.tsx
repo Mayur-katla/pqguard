@@ -111,6 +111,8 @@ const secondaryButton = `${buttonBase} border border-line/80 bg-panel/80 text-in
 const fieldClass =
   "w-full rounded-lg border border-line/80 bg-panel/80 px-3.5 py-3 text-body-sm text-ink shadow-inner-line outline-none transition placeholder:text-faint hover:border-strongLine focus:border-aurora focus:ring-2 focus:ring-aurora/25";
 const maxArtifactTextChars = 60_000;
+const maxUploadBytes = 5_000_000;
+const maxResumeUploadBytes = 500_000;
 
 function trackFor(mode: AnalysisMode) {
   return tracks.find((track) => track.mode === mode) ?? tracks[0];
@@ -312,7 +314,12 @@ export function MainDashboard() {
       notify(`${activeTrack.label} is paste-only. Paste the content directly into the text box.`, "error");
       return;
     }
-    if (file.size > 5_000_000) {
+    const uploadLimit = activeTrack.mode === "hiring" ? maxResumeUploadBytes : maxUploadBytes;
+    if (file.size > uploadLimit) {
+      if (activeTrack.mode === "hiring") {
+        notify("Upload a resume PDF, TXT, or MD file under 500 KB.", "error");
+        return;
+      }
       notify("Upload a PDF or text file under 5 MB.", "error");
       return;
     }

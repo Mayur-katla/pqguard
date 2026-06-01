@@ -14,6 +14,8 @@ import { sanitizeScanReport, toCsv, toMarkdown, toPdf } from "./services/reports
 
 const app = express();
 const MAX_ARTIFACT_TEXT_CHARS = 60_000;
+const MAX_PDF_BYTES = 5_000_000;
+const MAX_RESUME_PDF_BYTES = 500_000;
 const allowedCorsOrigins = new Set([
   "http://localhost:5173",
   "https://pqguard.vercel.app",
@@ -134,10 +136,11 @@ app.post("/api/files/extract-pdf", async (req, res, next) => {
   try {
     const input = pdfExtractSchema.parse(req.body);
     const bytes = Buffer.from(input.data, "base64");
-    if (bytes.length > 5_000_000) {
+    const uploadLimit = input.mode === "hiring" ? MAX_RESUME_PDF_BYTES : MAX_PDF_BYTES;
+    if (bytes.length > uploadLimit) {
       return res.status(413).json({
         error: "PDF is too large",
-        details: ["Upload a PDF under 5 MB."]
+        details: [input.mode === "hiring" ? "Upload a resume PDF under 500 KB." : "Upload a PDF under 5 MB."]
       });
     }
 
