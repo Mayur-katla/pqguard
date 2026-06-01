@@ -28,6 +28,34 @@ function combinedText(input: ProofAnalysisInput) {
   return [input.title, input.body, commits, comments].filter(Boolean).join("\n\n");
 }
 
+function claimText(input: ProofAnalysisInput) {
+  if (input.mode !== "code_review") return combinedText(input);
+
+  const templatePatterns = [
+    /add one of the following kinds/i,
+    /optionally add one or more/i,
+    /add the word ["']?fixes/i,
+    /do not use ["']?fixes/i,
+    /fixes\s+#<|fixes\s+none/i,
+    /which issue|what type of pr|does this pr introduce/i,
+    /user-facing change|documentation update|release note/i,
+    /release note/i,
+    /sig-|kind\/|area\/|priority\//i,
+    /<!--|-->/,
+    /^\s*[-*]\s*\[[ x]\]/i,
+    /^\s*\/(?:kind|sig|area|priority|assign|cc)\b/i
+  ];
+
+  const cleanedBody = (input.body ?? "")
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line.length > 8)
+    .filter((line) => !templatePatterns.some((pattern) => pattern.test(line)))
+    .join("\n");
+  const commits = input.commits?.map((commit) => commit.message.split(/\r?\n/)[0]).join("\n") ?? "";
+  return [input.title, cleanedBody, commits].filter(Boolean).join("\n\n");
+}
+
 function diffText(input: ProofAnalysisInput) {
   return [input.diff, input.files?.map((file) => `${file.filename}\n${file.patch ?? ""}`).join("\n")].filter(Boolean).join("\n");
 }
@@ -68,14 +96,25 @@ function proofBand(score: number): ProofBand {
   return "Missing";
 }
 
+function cleanClaim(claim: string) {
+  return claim
+    .replace(/\s+/g, " ")
+    .replace(/^[-*]\s*/, "")
+    .replace(/^#+\s*/, "")
+    .trim();
+}
+
 function extractClaims(text: string) {
   return sentences(text)
+    .map(cleanClaim)
     .filter((sentence) => sentence.length > 12 && CLAIM_PATTERNS.some((pattern) => pattern.test(sentence)))
+    .filter((sentence) => /^[A-Za-z0-9#]/.test(sentence))
+    .filter((sentence) => !/add one of the following kinds|optionally add one or more|add the word ["']?fixes|do not use ["']?fixes|fixes\s+#<|kind\/|sig-|release note|which issue|what type of pr|user-facing change|documentation update/i.test(sentence))
     .slice(0, 6);
 }
 
 function claimEvidence(input: ProofAnalysisInput, text: string): ClaimEvidence[] {
-  const claims = extractClaims(text);
+  const claims = extractClaims(claimText(input));
   const diff = diffText(input);
   return claims.map((claim) => {
     const similarity = diff ? cosineLikeSimilarity(claim, diff) : 0;

@@ -160,8 +160,23 @@ export async function scanGitHubRepository(repoUrl: string, requestToken?: strin
     pullRequests.push({
       ...normalized,
       score,
-      proof: pullRequests.length < config.aiScanLimit ? await enrichProofAnalysis(proof, proofInput) : proof
+      proof
     });
+  }
+
+  const topRiskIds = new Set([...pullRequests].sort((a, b) => b.score.score - a.score.score).slice(0, config.aiScanLimit).map((pr) => pr.id));
+  for (const pr of pullRequests) {
+    if (!topRiskIds.has(pr.id)) continue;
+    const proofInput = {
+      mode: "code_review",
+      kind: "pull_request",
+      title: pr.title,
+      body: pr.body,
+      files: pr.files,
+      commits: pr.commits,
+      comments: pr.comments
+    } as const;
+    pr.proof = await enrichProofAnalysis(pr.proof, proofInput);
   }
 
   return {
