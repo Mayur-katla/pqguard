@@ -9,7 +9,7 @@ async function errorMessageFor(response: Response) {
 
   if (response.status === 400) return details ? `Please check the input: ${details}` : `Please check the input: ${base}`;
   if (response.status === 413) return "This input is too large. Shorten the content or upload a smaller text file.";
-  if (response.status === 429) return "GitHub or the AI provider is rate-limiting this request. Add a token or try again later.";
+  if (response.status === 429) return details || "The AI provider is rate-limiting this request. Try again later, upload a text-based PDF, or paste the content directly.";
   if (response.status >= 500) return "The PRGuard backend hit an error. Try again, or check the Render logs if it continues.";
   return details ? `${base}: ${details}` : base;
 }

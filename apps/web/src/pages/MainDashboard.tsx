@@ -676,7 +676,15 @@ function TrackInput({
           <label className={`${secondaryButton} cursor-pointer`}>
             <FileUp size={17} />
             {track.uploadLabel}
-            <input className="sr-only" type="file" accept={track.uploadAccept} onChange={(event) => onUpload(event.target.files?.[0])} />
+            <input
+              className="sr-only"
+              type="file"
+              accept={track.uploadAccept}
+              onChange={(event) => {
+                onUpload(event.target.files?.[0]);
+                event.currentTarget.value = "";
+              }}
+            />
           </label>
         ) : null}
         <button className={secondaryButton} type="button" onClick={onCopyQuestions} disabled={!proof}>
