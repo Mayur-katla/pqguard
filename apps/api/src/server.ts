@@ -9,6 +9,7 @@ import { checkDb, saveScan } from "./db.js";
 import { enrichProofAnalysis, extractPdfTextWithGemini } from "./services/ai.js";
 import { generateGithubActionYaml } from "./services/ci.js";
 import { RepoUrlError, scanGitHubRepository } from "./services/github.js";
+import { extractPdfText } from "./services/pdf.js";
 import { sanitizeScanReport, toCsv, toMarkdown, toPdf } from "./services/reports.js";
 
 const app = express();
@@ -140,12 +141,21 @@ app.post("/api/files/extract-pdf", async (req, res, next) => {
       });
     }
 
-    const result = await extractPdfTextWithGemini({
-      base64: input.data,
-      mimeType: input.mimeType,
-      fileName: input.fileName,
-      mode: input.mode
-    });
+    const parsedText = await extractPdfText(bytes);
+    const result = parsedText
+      ? {
+          provider: "pdfjs" as const,
+          model: "pdfjs-dist",
+          text: parsedText,
+          notes: [] as string[]
+        }
+      : await extractPdfTextWithGemini({
+          base64: input.data,
+          mimeType: input.mimeType,
+          fileName: input.fileName,
+          mode: input.mode
+        });
+
     if (result.text.length > MAX_ARTIFACT_TEXT_CHARS) {
       return res.status(413).json({
         error: "Extracted text is too large",

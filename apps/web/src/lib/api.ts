@@ -62,9 +62,9 @@ function base64FromFile(file: File) {
   });
 }
 
-export async function extractPdfWithAi(file: File, mode: AnalysisMode) {
+export async function extractPdfOnServer(file: File, mode: AnalysisMode) {
   const data = await base64FromFile(file);
-  return request<{ text: string; provider: string; model: string; notes: string[] }>("/files/extract-pdf", {
+  return request<{ text: string; provider: "pdfjs" | "gemini"; model: string; notes: string[] }>("/files/extract-pdf", {
     method: "POST",
     body: JSON.stringify({
       fileName: file.name,

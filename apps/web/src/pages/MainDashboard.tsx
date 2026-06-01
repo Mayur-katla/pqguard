@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
-import { analyzeProof, downloadReport, extractPdfWithAi, getCiYaml, scanRepo } from "../lib/api";
+import { analyzeProof, downloadReport, extractPdfOnServer, getCiYaml, scanRepo } from "../lib/api";
 import { extractUploadText } from "../lib/files";
 import { maskSensitiveText } from "../lib/privacy";
 import type { AnalysisMode, ClaimEvidence, FixStep, ProofAnalysisResult, PullRequestScore, ScanResult } from "../lib/types";
@@ -321,13 +321,19 @@ export function MainDashboard() {
     try {
       let content = "";
       try {
-        content = await extractUploadText(file);
+        if (isPdfFile(file) && ["docs", "hiring"].includes(activeTrack.mode)) {
+          notify("Extracting PDF text on the server...", "info");
+          const extracted = await extractPdfOnServer(file, activeTrack.mode);
+          content = extracted.text;
+        } else {
+          content = await extractUploadText(file);
+        }
       } catch (error) {
         if (!isPdfFile(file) || !["docs", "hiring"].includes(activeTrack.mode)) {
           throw error;
         }
-        notify("No selectable PDF text found. Trying AI extraction now...", "info");
-        const extracted = await extractPdfWithAi(file, activeTrack.mode);
+        notify("No selectable PDF text found in browser. Trying server extraction now...", "info");
+        const extracted = await extractPdfOnServer(file, activeTrack.mode);
         content = extracted.text;
       }
       if (!content.trim()) {
