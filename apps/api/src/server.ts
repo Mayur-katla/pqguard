@@ -12,6 +12,7 @@ import { RepoUrlError, scanGitHubRepository } from "./services/github.js";
 import { sanitizeScanReport, toCsv, toMarkdown, toPdf } from "./services/reports.js";
 
 const app = express();
+const MAX_ARTIFACT_TEXT_CHARS = 60_000;
 const allowedCorsOrigins = new Set([
   "http://localhost:5173",
   "https://pqguard.vercel.app",
@@ -29,7 +30,7 @@ app.use(cors({
     callback(null, false);
   }
 }));
-app.use(express.json({ limit: "1mb" }));
+app.use(express.json({ limit: "5mb" }));
 app.use(morgan(config.nodeEnv === "production" ? "combined" : "dev"));
 
 app.get("/api/health", (_req, res) => {
@@ -64,7 +65,7 @@ app.post("/api/scan", async (req, res, next) => {
 });
 
 const analyzeSchema = z.object({
-  text: z.string().min(1).max(15000),
+  text: z.string().min(1).max(MAX_ARTIFACT_TEXT_CHARS, `Text must be ${MAX_ARTIFACT_TEXT_CHARS.toLocaleString()} characters or fewer.`),
   title: z.string().max(250).optional(),
   mode: z.enum(["code_review", "docs", "hiring", "communications"]).optional()
 });
@@ -95,7 +96,7 @@ app.post("/api/analyze", async (req, res, next) => {
 const proofSchema = z.object({
   mode: z.enum(["code_review", "docs", "hiring", "communications"]),
   title: z.string().max(250).optional(),
-  text: z.string().min(1).max(15000),
+  text: z.string().min(1).max(MAX_ARTIFACT_TEXT_CHARS, `Text must be ${MAX_ARTIFACT_TEXT_CHARS.toLocaleString()} characters or fewer.`),
   diff: z.string().max(30000).optional(),
   files: z.array(z.object({ filename: z.string(), patch: z.string().optional(), additions: z.number().optional(), deletions: z.number().optional() })).optional(),
   commits: z.array(z.object({ message: z.string(), author: z.string().optional(), sha: z.string().optional(), date: z.string().optional() })).optional(),

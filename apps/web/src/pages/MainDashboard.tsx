@@ -103,6 +103,7 @@ const primaryButton = `${buttonBase} bg-brand-gradient text-white shadow-glow ho
 const secondaryButton = `${buttonBase} border border-line/80 bg-panel/80 text-ink hover:-translate-y-0.5 hover:border-aurora/60 hover:bg-elevated`;
 const fieldClass =
   "w-full rounded-lg border border-line/80 bg-panel/80 px-3.5 py-3 text-body-sm text-ink shadow-inner-line outline-none transition placeholder:text-faint hover:border-strongLine focus:border-aurora focus:ring-2 focus:ring-aurora/25";
+const maxArtifactTextChars = 60_000;
 
 function trackFor(mode: AnalysisMode) {
   return tracks.find((track) => track.mode === mode) ?? tracks[0];
@@ -273,6 +274,10 @@ export function MainDashboard() {
   async function handleAnalyze() {
     if (!text.trim()) {
       setMessage("Paste or upload content before running analysis.");
+      return;
+    }
+    if (text.length > maxArtifactTextChars) {
+      setMessage(`Keep the input under ${maxArtifactTextChars.toLocaleString()} characters. This content has ${text.length.toLocaleString()}.`);
       return;
     }
 
@@ -562,6 +567,9 @@ function TrackInput({
   onCopyFixPlan: () => void;
   onCopyScore: () => void;
 }) {
+  const nearLimit = text.length > maxArtifactTextChars * 0.9;
+  const overLimit = text.length > maxArtifactTextChars;
+
   return (
     <section className="min-w-0 rounded-2xl border border-line/80 bg-panel/80 p-4 shadow-soft backdrop-blur-xl">
       <span className="text-eyebrow uppercase text-aurora">{track.eyebrow}</span>
@@ -569,12 +577,17 @@ function TrackInput({
       <p className="mt-3 max-w-3xl text-body-lg text-muted">{track.description}</p>
 
       <label className="mt-5 block">
-        <span className="mb-2 block text-caption font-bold uppercase text-muted">{track.inputLabel}</span>
+        <span className="mb-2 flex flex-wrap items-center justify-between gap-2 text-caption font-bold uppercase text-muted">
+          <span>{track.inputLabel}</span>
+          <span className={overLimit ? "text-block-strong" : nearLimit ? "text-review-strong" : "text-muted"}>
+            {text.length.toLocaleString()} / {maxArtifactTextChars.toLocaleString()}
+          </span>
+        </span>
         <textarea className={`${fieldClass} min-h-44 resize-y`} aria-label={track.inputLabel} value={text} onChange={(event) => onTextChange(event.target.value)} placeholder={track.placeholder} />
       </label>
 
       <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-        <button className={primaryButton} type="button" onClick={onAnalyze} disabled={loading || !text.trim()}>
+        <button className={primaryButton} type="button" onClick={onAnalyze} disabled={loading || !text.trim() || overLimit}>
           {loading ? <Loader2 className="animate-spin" size={17} /> : <Gauge size={17} />}
           Analyze
         </button>
