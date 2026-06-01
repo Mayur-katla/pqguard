@@ -44,6 +44,23 @@ function checklistItem(label: string, passed: boolean, severity: ProofChecklistI
   return { label, passed, severity, detail };
 }
 
+function docsProfile(lower: string) {
+  const hasInstall = hasAny(lower, [/npm install|npm i|pnpm add|yarn add|pip install|go get|cargo add|installation|install/]);
+  const hasUsage = hasAny(lower, [/usage|quick start|quickstart|getting started|example|api|import |from ["']|require\(|function|hook|component/]);
+  const hasCode = /```|npm |pnpm |yarn |curl |json|yaml|\.env|config|api|import |require\(/.test(lower);
+  const hasExpectedOutput = hasAny(lower, [/expected|output|you should see|returns|response|result|prints|renders|displays/]);
+  const hasTroubleshooting = hasAny(lower, [/troubleshoot|error|faq|common issue|debug|if .* fails|problem|known issue/]);
+  const hasDeployment = hasAny(lower, [/deploy|render|vercel|docker|production|environment variable|\.env|hosting|server/]);
+  const linkCount = (lower.match(/https?:\/\/|github\.com|\]\(/g) ?? []).length;
+  const headingCount = (lower.match(/^#{1,4}\s+/gm) ?? []).length;
+  const listItemCount = (lower.match(/^\s*[-*]\s+/gm) ?? []).length;
+  const isResourceList = linkCount >= 6 && listItemCount >= 6 && headingCount >= 3 && !hasInstall;
+  const isLibraryReadme = hasInstall && hasUsage && hasCode;
+  const isRunbook = hasDeployment && hasInstall;
+
+  return { hasInstall, hasUsage, hasCode, hasExpectedOutput, hasTroubleshooting, hasDeployment, headingCount, linkCount, listItemCount, isResourceList, isLibraryReadme, isRunbook };
+}
+
 function proofBand(score: number): ProofBand {
   if (score >= 75) return "Strong";
   if (score >= 50) return "Partial";
@@ -108,6 +125,28 @@ function modeChecklist(input: ProofAnalysisInput, text: string): ProofChecklistI
   }
 
   if (input.mode === "docs") {
+    const profile = docsProfile(lower);
+
+    if (profile.isResourceList) {
+      return [
+        checklistItem("Clear resource purpose", hasAny(lower, [/awesome|resources|collection|curated|examples|templates|plugins/]), "high", "Resource lists should clearly explain what the collection helps readers find."),
+        checklistItem("Organized categories", profile.headingCount >= 3, "high", "Resource lists need headings or categories so readers can scan quickly."),
+        checklistItem("Useful item descriptions", hasAny(lower, [/ - | – |: | — /]) && profile.listItemCount >= 10, "medium", "Resource links should include short descriptions, not only names."),
+        checklistItem("Contribution or selection guidance", hasAny(lower, [/contributing|submit|pull request|criteria|maintained|license/]), "medium", "Curated lists should explain how items are selected or updated."),
+        checklistItem("Avoids circular explanation", !/(this section explains|as described above|the process is the process|various|comprehensive).{0,80}\1/i.test(lower), "medium", "Docs should add new information instead of restating headings.")
+      ];
+    }
+
+    if (profile.isLibraryReadme) {
+      return [
+        checklistItem("Install or setup command present", profile.hasInstall, "high", "Library READMEs should show how to install or start the package."),
+        checklistItem("Usage example present", profile.hasUsage && profile.hasCode, "high", "Library READMEs should include at least one usage example or API snippet."),
+        checklistItem("API or feature explanation present", hasAny(lower, [/api|options|props|parameters|features|configuration|browser|node|typescript/]), "medium", "Readers need to understand the main API, feature, or configuration surface."),
+        checklistItem("Expected behavior described", profile.hasExpectedOutput || hasAny(lower, [/renders|returns|fetches|runs|test|browser|request|response/]), "medium", "Strong docs describe what the command or example should do."),
+        checklistItem("Troubleshooting or limits present", profile.hasTroubleshooting || hasAny(lower, [/requirements|prerequisite|node\.js|version|browser support|limitations|caveat/]), "low", "Mature READMEs should mention failure cases, limits, or support requirements.")
+      ];
+    }
+
     return [
       checklistItem("Concrete example present", hasAny(lower, [/example|for example|e\.g\.|sample|scenario/]), "high", "Docs should include at least one concrete example."),
       checklistItem("Step-by-step instruction present", hasAny(lower, [/step|first|next|then|run|click|open|install/]), "high", "Useful docs show a reader what to do."),
@@ -142,7 +181,9 @@ function proofScore(checklist: ProofChecklistItem[], claims: ClaimEvidence[], te
   const actionability = mode === "communications" ? countMatches(text, [/owner|deadline|next|action|due|decision/i]) * 20 : countMatches(text, [/test|verified|example|metric|owner|deadline|risk|rollback/i]) * 14;
   const contextAlignment = claims.length ? (claims.filter((claim) => claim.status === "supported" || claim.status === "partial").length / claims.length) * 100 : 45;
   const verification = countMatches(text, [/test|spec|verified|validated|example|expected|metric|\d|owner|deadline|due/i]) * 12;
-  return Math.round(clamp(specificity * 0.25 + evidenceCoverage * 0.25 + clamp(actionability) * 0.2 + contextAlignment * 0.2 + clamp(verification) * 0.1));
+  const base = specificity * 0.25 + evidenceCoverage * 0.25 + clamp(actionability) * 0.2 + contextAlignment * 0.2 + clamp(verification) * 0.1;
+  const docsCalibration = mode === "docs" ? (evidenceCoverage >= 100 ? 18 : evidenceCoverage >= 80 ? 12 : evidenceCoverage >= 60 ? 6 : 0) : 0;
+  return Math.round(clamp(base + docsCalibration));
 }
 
 function buildQuestions(mode: AnalysisMode, missing: ProofChecklistItem[], claims: ClaimEvidence[]) {

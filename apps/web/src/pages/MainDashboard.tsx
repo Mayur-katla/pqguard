@@ -168,7 +168,8 @@ function primaryReport(proof: ProofAnalysisResult) {
   const deterministicMerits = proof.missingProof.filter((item) => item.passed).map((item) => item.label);
   const deterministicDemerits = proof.missingProof.filter((item) => !item.passed).map((item) => `${item.label}: ${item.detail}`);
   const deterministicFixes = proof.fixPlan.map((step) => `${step.title}: ${step.detail}`);
-  const successRate = hasAi && typeof ai?.confidence === "number" ? Math.round(ai.confidence * 100) : proof.proofScore;
+  const aiConfidence = typeof ai?.confidence === "number" ? Math.round(ai.confidence * 100) : undefined;
+  const successRate = hasAi && typeof aiConfidence === "number" ? Math.max(aiConfidence, proof.proofScore) : proof.proofScore;
 
   return {
     source: hasAi ? "AI-first report" : "Guardrail fallback",
@@ -263,6 +264,11 @@ export function MainDashboard() {
   function notify(value: string, tone: ToastTone = "info") {
     setMessage(value);
     setMessageTone(tone);
+  }
+
+  function notifyLongInput() {
+    const extra = text.length - maxArtifactTextChars;
+    notify(`This document is ${extra.toLocaleString()} characters over the limit. Shorten it under ${maxArtifactTextChars.toLocaleString()} characters or test the most relevant README section.`, "error");
   }
 
   const sortedPrs = useMemo(() => [...(scan?.pullRequests ?? [])].sort((a, b) => b.score.score - a.score.score), [scan]);
@@ -459,6 +465,7 @@ export function MainDashboard() {
                 setProof(null);
               }}
               onAnalyze={handleAnalyze}
+              onOverLimit={notifyLongInput}
               onUpload={handleFileUpload}
               onCopyQuestions={() => proof && copyText(latestQuestions, "Questions copied.")}
               onCopyFixPlan={() => proof && copyText(latestFixPlan, "Fix plan copied.")}
@@ -601,6 +608,7 @@ function TrackInput({
   loading,
   onTextChange,
   onAnalyze,
+  onOverLimit,
   onUpload,
   onCopyQuestions,
   onCopyFixPlan,
@@ -613,6 +621,7 @@ function TrackInput({
   loading: boolean;
   onTextChange: (value: string) => void;
   onAnalyze: () => void;
+  onOverLimit: () => void;
   onUpload: (file: File | undefined) => void;
   onCopyQuestions: () => void;
   onCopyFixPlan: () => void;
@@ -638,7 +647,7 @@ function TrackInput({
       </label>
 
       <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-        <button className={primaryButton} type="button" onClick={onAnalyze} disabled={loading || !text.trim() || overLimit}>
+        <button className={primaryButton} type="button" onClick={overLimit ? onOverLimit : onAnalyze} disabled={loading || !text.trim()}>
           {loading ? <Loader2 className="animate-spin" size={17} /> : <Gauge size={17} />}
           Analyze
         </button>

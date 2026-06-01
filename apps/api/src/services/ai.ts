@@ -71,8 +71,20 @@ function promptFor(input: ProofAnalysisInput, proof: ProofAnalysisResult) {
     communications: "Rewrite the message so it has a clear ask or decision, owner, deadline or timing, and next action without inventing commitments."
   };
 
+  const docsGuidance = input.mode === "docs"
+    ? [
+        "Docs-specific guidance:",
+        "- First classify the document as library README, deployment/runbook, API reference, or curated resource list.",
+        "- Do not say examples are missing when code blocks, imports, usage snippets, or concrete examples are present.",
+        "- For library READMEs, judge install/setup, quickstart, usage/API clarity, expected behavior, requirements, and troubleshooting.",
+        "- For curated resource lists, judge categories, descriptions, selection/contribution guidance, freshness, and scanability; do not penalize them for lacking step-by-step setup unless they claim to be a tutorial.",
+        "- If examples exist but outputs are missing, say 'examples exist, but expected output or failure cases are limited.'"
+      ].join("\n")
+    : "";
+
   return [
     `Mode: ${input.mode}`,
+    docsGuidance,
     `Title: ${input.title ?? "Untitled"}`,
     `Text:\n${truncate(input.body ?? "")}`,
     input.diff ? `Diff:\n${truncate(input.diff, 4000)}` : "",
