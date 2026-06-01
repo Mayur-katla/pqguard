@@ -36,6 +36,7 @@ docker-compose up --build
 - Explainable score components: AI-likelihood, information density, diff alignment gap, and style uniformity.
 - Heatmap, score trend, ranked evidence queue, and PR detail drill-down.
 - UniversalAnalyzer for pasted text across docs, resumes, team messages, and code review artifacts.
+- PDF/TXT/MD upload for documentation and resume analysis.
 - Human Proof Score for Code Review, Docs, Hiring, and Communications.
 - Verdict, reason, next action, Proof Gaps checklist, Claim-to-Evidence Map, reviewer questions, and fix plan.
 - Optional proof review summary with Evidence Found, Proof Gaps, Recommended Fixes, and Safer Rewrite.
@@ -68,6 +69,7 @@ Copy `.env.example` to `.env` when running outside Docker or when adding real in
 | `VITE_API_BASE_URL` | No | Frontend API base URL. |
 
 The deterministic heuristics engine is always available, so the app can run without AI keys.
+PRGuard reports are evidence-based review aids, not 100% accuracy guarantees.
 
 ## Architecture
 

@@ -21,6 +21,7 @@ import {
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { analyzeProof, downloadReport, getCiYaml, scanRepo } from "../lib/api";
+import { extractUploadText } from "../lib/files";
 import { maskSensitiveText } from "../lib/privacy";
 import type { AiReview, AnalysisMode, ClaimEvidence, FixStep, ProofAnalysisResult, PullRequestScore, ScanResult } from "../lib/types";
 import { Modal } from "../components/Modal";
@@ -41,6 +42,7 @@ interface TrackConfig {
   placeholder: string;
   upload: boolean;
   uploadLabel: string;
+  uploadAccept: string;
 }
 
 const tracks: TrackConfig[] = [
@@ -55,7 +57,8 @@ const tracks: TrackConfig[] = [
     inputLabel: "PR text",
     placeholder: "Paste a PR title, description, changed-file summary, reviewer comments, or release note...",
     upload: false,
-    uploadLabel: ""
+    uploadLabel: "",
+    uploadAccept: ""
   },
   {
     mode: "docs",
@@ -68,7 +71,8 @@ const tracks: TrackConfig[] = [
     inputLabel: "Documentation text",
     placeholder: "Paste documentation, README, onboarding, or knowledge base text...",
     upload: true,
-    uploadLabel: "Upload TXT/MD docs"
+    uploadLabel: "Upload docs",
+    uploadAccept: ".pdf,.txt,.md,.markdown,.csv,.json,.log,.yml,.yaml"
   },
   {
     mode: "hiring",
@@ -81,7 +85,8 @@ const tracks: TrackConfig[] = [
     inputLabel: "Resume or hiring text",
     placeholder: "Paste a resume section, cover letter, portfolio summary, or take-home explanation...",
     upload: true,
-    uploadLabel: "Upload TXT/MD resume"
+    uploadLabel: "Upload resume",
+    uploadAccept: ".pdf,.txt,.md,.markdown"
   },
   {
     mode: "communications",
@@ -93,8 +98,9 @@ const tracks: TrackConfig[] = [
     description: "Check messages for a clear ask or decision, owner, timing, next action, and low-filler wording.",
     inputLabel: "Message text",
     placeholder: "Paste a Slack message, email, meeting note, or status update...",
-    upload: true,
-    uploadLabel: "Upload TXT/MD note"
+    upload: false,
+    uploadLabel: "",
+    uploadAccept: ""
   }
 ];
 
@@ -260,22 +266,35 @@ export function MainDashboard() {
 
   async function handleFileUpload(file: File | undefined) {
     if (!file) return;
-    if (file.size > 1_000_000) {
-      notify("Upload a text file under 1 MB.", "error");
+    if (!activeTrack.upload) {
+      notify(`${activeTrack.label} is paste-only. Paste the content directly into the text box.`, "error");
+      return;
+    }
+    if (file.size > 5_000_000) {
+      notify("Upload a PDF or text file under 5 MB.", "error");
       return;
     }
 
-    const extension = file.name.split(".").pop()?.toLowerCase() ?? "";
-    if (["pdf", "doc", "docx"].includes(extension)) {
-      notify("PDF/DOCX parsing is not built in yet. Export to TXT/MD or paste the text.", "error");
-      return;
+    setLoading(true);
+    try {
+      const content = await extractUploadText(file);
+      if (!content.trim()) {
+        notify("No readable text was found in this file. Try exporting the file as text or paste the content directly.", "error");
+        return;
+      }
+      if (content.length > maxArtifactTextChars) {
+        notify(`The extracted text is too long: ${content.length.toLocaleString()} characters. Keep it under ${maxArtifactTextChars.toLocaleString()}.`, "error");
+        return;
+      }
+      setText(content);
+      setUploadedFileName(file.name);
+      setProof(null);
+      notify(`Loaded ${file.name} with ${content.length.toLocaleString()} readable characters.`, "success");
+    } catch (error) {
+      notify(error instanceof Error ? error.message : "Could not read this file. Paste the content directly instead.", "error");
+    } finally {
+      setLoading(false);
     }
-
-    const content = await file.text();
-    setText(content);
-    setUploadedFileName(file.name);
-    setProof(null);
-    notify(`Loaded ${file.name}.`, "success");
   }
 
   async function handleAnalyze() {
@@ -602,7 +621,7 @@ function TrackInput({
           <label className={`${secondaryButton} cursor-pointer`}>
             <FileUp size={17} />
             {track.uploadLabel}
-            <input className="sr-only" type="file" accept=".txt,.md,.markdown,.csv,.json,.log,.yml,.yaml" onChange={(event) => onUpload(event.target.files?.[0])} />
+            <input className="sr-only" type="file" accept={track.uploadAccept} onChange={(event) => onUpload(event.target.files?.[0])} />
           </label>
         ) : null}
         <button className={secondaryButton} type="button" onClick={onCopyQuestions} disabled={!proof}>
