@@ -12,12 +12,16 @@ function textFromItem(item: unknown) {
   return typeof value === "string" ? value.trim() : "";
 }
 
-async function extractPdfText(file: File) {
+async function loadPdf(bytes: Uint8Array) {
   const { GlobalWorkerOptions, getDocument } = await import("pdfjs-dist");
   GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
 
+  return getDocument({ data: bytes }).promise;
+}
+
+async function extractPdfText(file: File) {
   const bytes = new Uint8Array(await file.arrayBuffer());
-  const pdf = await getDocument({ data: bytes }).promise;
+  const pdf = await loadPdf(bytes);
   const pages: string[] = [];
 
   for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
@@ -30,7 +34,12 @@ async function extractPdfText(file: File) {
     if (pageText) pages.push(pageText);
   }
 
-  return pages.join("\n\n").trim();
+  const text = pages.join("\n\n").trim();
+  if (!text) {
+    throw new Error("This PDF has no selectable text. It may be scanned or image-only. Upload a text-based PDF, TXT, or MD file, or paste the resume text.");
+  }
+
+  return text;
 }
 
 export async function extractUploadText(file: File) {
