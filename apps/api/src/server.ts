@@ -154,7 +154,26 @@ app.post("/api/report", async (req, res, next) => {
   }
 });
 
+type HttpBodyError = Error & {
+  status?: number;
+  statusCode?: number;
+  type?: string;
+};
+
 app.use((error: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  const bodyError = error as HttpBodyError;
+  if (bodyError?.type === "entity.too.large" || bodyError?.status === 413 || bodyError?.statusCode === 413) {
+    return res.status(413).json({
+      error: "Input is too large",
+      details: ["Keep pasted or uploaded content under 60,000 characters."]
+    });
+  }
+  if (bodyError instanceof SyntaxError && "body" in bodyError) {
+    return res.status(400).json({
+      error: "Invalid JSON request",
+      details: ["Refresh the page and try again. If this repeats, paste plain text instead of formatted content."]
+    });
+  }
   if (error instanceof z.ZodError) {
     return res.status(400).json({ error: "Validation failed", details: error.issues.map((issue) => issue.message) });
   }

@@ -27,6 +27,7 @@ import { Modal } from "../components/Modal";
 import { Toast } from "../components/Toast";
 
 type ModalName = "scan" | "details" | "evidence" | "fix" | "ci" | "export" | null;
+type ToastTone = "error" | "info" | "success";
 
 interface TrackConfig {
   mode: AnalysisMode;
@@ -216,6 +217,7 @@ export function MainDashboard() {
   const [scanProgress, setScanProgress] = useState(0);
   const [scanStage, setScanStage] = useState("");
   const [message, setMessage] = useState("");
+  const [messageTone, setMessageTone] = useState<ToastTone>("info");
 
   const activeTrack = trackFor(mode);
   const isCodeReview = mode === "code_review";
@@ -226,6 +228,11 @@ export function MainDashboard() {
     return () => window.clearTimeout(timeout);
   }, [message]);
 
+  function notify(value: string, tone: ToastTone = "info") {
+    setMessage(value);
+    setMessageTone(tone);
+  }
+
   const sortedPrs = useMemo(() => [...(scan?.pullRequests ?? [])].sort((a, b) => b.score.score - a.score.score), [scan]);
   const topRisk = scan?.summary.topRisk[0] ?? sortedPrs[0] ?? null;
   const averageScore = scan?.summary.averageScore ?? 0;
@@ -235,7 +242,7 @@ export function MainDashboard() {
 
   async function copyText(value: string, label = "Copied to clipboard.") {
     await navigator.clipboard.writeText(maskSensitiveText(value));
-    setMessage(label);
+    notify(label, "success");
   }
 
   function buildScoreCard(result: ProofAnalysisResult) {
@@ -254,13 +261,13 @@ export function MainDashboard() {
   async function handleFileUpload(file: File | undefined) {
     if (!file) return;
     if (file.size > 1_000_000) {
-      setMessage("Upload a text file under 1 MB.");
+      notify("Upload a text file under 1 MB.", "error");
       return;
     }
 
     const extension = file.name.split(".").pop()?.toLowerCase() ?? "";
     if (["pdf", "doc", "docx"].includes(extension)) {
-      setMessage("PDF/DOCX parsing is not built in yet. Export to TXT/MD or paste the text.");
+      notify("PDF/DOCX parsing is not built in yet. Export to TXT/MD or paste the text.", "error");
       return;
     }
 
@@ -268,16 +275,16 @@ export function MainDashboard() {
     setText(content);
     setUploadedFileName(file.name);
     setProof(null);
-    setMessage(`Loaded ${file.name}.`);
+    notify(`Loaded ${file.name}.`, "success");
   }
 
   async function handleAnalyze() {
     if (!text.trim()) {
-      setMessage("Paste or upload content before running analysis.");
+      notify("Paste or upload content before running analysis.", "error");
       return;
     }
     if (text.length > maxArtifactTextChars) {
-      setMessage(`Keep the input under ${maxArtifactTextChars.toLocaleString()} characters. This content has ${text.length.toLocaleString()}.`);
+      notify(`Keep the input under ${maxArtifactTextChars.toLocaleString()} characters. This content has ${text.length.toLocaleString()}.`, "error");
       return;
     }
 
@@ -285,9 +292,9 @@ export function MainDashboard() {
     try {
       const result = await analyzeProof(mode, text, uploadedFileName || `${activeTrack.label} live input`);
       setProof(result);
-      setMessage(`${activeTrack.label} proof score: ${result.proofScore}/100`);
+      notify(`${activeTrack.label} proof score: ${result.proofScore}/100`, "success");
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Analysis failed.");
+      notify(error instanceof Error ? error.message : "Analysis failed. Check the input and try again.", "error");
     } finally {
       setLoading(false);
     }
@@ -295,7 +302,7 @@ export function MainDashboard() {
 
   async function handleScan() {
     if (!repoUrl.trim()) {
-      setMessage("Enter a public GitHub repository first.");
+      notify("Enter a public GitHub repository first.", "error");
       return;
     }
 
@@ -327,12 +334,12 @@ export function MainDashboard() {
       setScan(result);
       setSelectedPr(result.summary.topRisk[0] ?? result.pullRequests[0] ?? null);
       setActiveModal(null);
-      setMessage(`Scanned ${result.summary.totalPrs} pull requests from ${result.repository.owner}/${result.repository.name}.`);
+      notify(`Scanned ${result.summary.totalPrs} pull requests from ${result.repository.owner}/${result.repository.name}.`, "success");
     } catch (error) {
       window.clearInterval(timer);
       setScanProgress(0);
       setScanStage("");
-      setMessage(error instanceof Error ? error.message : "Scan failed.");
+      notify(error instanceof Error ? error.message : "Scan failed. Check the repository URL and token, then try again.", "error");
     } finally {
       setLoading(false);
     }
@@ -342,9 +349,9 @@ export function MainDashboard() {
     setLoading(true);
     try {
       setCiYaml(await getCiYaml(threshold));
-      setMessage("CI workflow generated.");
+      notify("CI workflow generated.", "success");
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Could not generate YAML.");
+      notify(error instanceof Error ? error.message : "Could not generate YAML.", "error");
     } finally {
       setLoading(false);
     }
@@ -366,7 +373,7 @@ export function MainDashboard() {
     <main className="min-h-screen bg-app-radial text-ink">
       <Toast
         message={message}
-        tone={message.toLowerCase().includes("failed") || message.toLowerCase().includes("enter") || message.toLowerCase().includes("paste") || message.toLowerCase().includes("not built") ? "info" : "success"}
+        tone={messageTone}
         onDismiss={() => setMessage("")}
       />
 
