@@ -22,9 +22,14 @@ const focusableSelector = [
 
 export function Modal({ title, subtitle, open, onClose, children, wide }: ModalProps) {
   const modalRef = useRef<HTMLDivElement | null>(null);
+  const onCloseRef = useRef(onClose);
   const previousFocusRef = useRef<HTMLElement | null>(null);
   const titleId = useId();
   const subtitleId = useId();
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
 
   useEffect(() => {
     if (!open) return;
@@ -42,7 +47,7 @@ export function Modal({ title, subtitle, open, onClose, children, wide }: ModalP
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
         event.preventDefault();
-        onClose();
+        onCloseRef.current();
         return;
       }
 
@@ -79,7 +84,7 @@ export function Modal({ title, subtitle, open, onClose, children, wide }: ModalP
       document.body.style.overflow = previousOverflow;
       previousFocusRef.current?.focus?.();
     };
-  }, [onClose, open]);
+  }, [open]);
 
   if (!open) return null;
 
